@@ -1,1 +1,1 @@
-const String kProductName = 'Cola';
+const String kProductName = 'Project View';

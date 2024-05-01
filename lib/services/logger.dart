@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 
+import '../config/constants.dart';
 import '../utils/utils.dart';
 
 class _LogFilter extends LogFilter {
@@ -25,7 +26,7 @@ class _ConsoleOutput extends LogOutput {
   @override
   void output(OutputEvent event) {
     for (final line in event.lines) {
-      developer.log(line, name: prefix ?? 'Cola');
+      developer.log(line, name: prefix ?? kProductName);
     }
   }
 }
@@ -211,7 +212,7 @@ class LoggerService extends GetxService {
     if (skipWidgetBuildTrace && level == Level.trace && message == 'build') {
       return;
     }
-      
+
     // 这里利用了error来充当tag, 如果不为空PrettyPrinter会觉得这是一条错误，从而输出堆栈信息
     // 对于PrettyPrinter，如果tag不为空且level>=warning时才使用tag
     if (usePrettyPrinter && tag != null && level.value < Level.warning.value) {

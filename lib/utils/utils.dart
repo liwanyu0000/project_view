@@ -9,6 +9,7 @@ import 'package:intl/intl.dart' hide TextDirection;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../config/constants.dart';
 import 'adaptive.dart';
 
 /// 将对象格式化为字符串，类似于`JSON.stringify`, 如果是函数先执行函数得到结果
@@ -50,10 +51,11 @@ List<T> mapList<T>(List<dynamic>? list, T Function(dynamic) toElement) =>
     list == null ? [] : list.map(toElement).toList();
 
 ///获取缓存目录
-Future<String> getCacheDirectory() async {
+Future<String?> getCacheDirectory() async {
   if (Adaptive.isWindows) {
-    return join(
-        (await getApplicationCacheDirectory()).parent.parent.path, 'Cola');
+    return join((await getApplicationCacheDirectory()).parent.parent.path,
+        kProductName);
   }
+  if (Adaptive.isWeb) return null;
   return (await getApplicationCacheDirectory()).path;
 }

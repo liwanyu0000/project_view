@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,14 +25,17 @@ Future<void> initServices() async {
     logger.log(isError ? Level.error : Level.debug, message, tag: ['GETX']);
   };
   Get.put(logger);
-  await Get.putAsync(
-    () async => ProfileService(kProductName, await getCacheDirectory()).init(),
-  );
+  if (!Adaptive.isWeb) {
+    await Get.putAsync(
+      () async =>
+          ProfileService(kProductName, await getCacheDirectory()).init(),
+    );
+  }
   Get.put(HttpService(logger, baseUrl: 'https://liwanyu.top/api'));
   SmartDialog.config.attach =
       SmartConfigAttach(attachAlignmentType: SmartAttachAlignmentType.inside);
   // 启动时默认为卡片视图
-  ProfileService.to.write('isCardView', true);
+  ProfileService.to?.write('isCardView', true);
 }
 
 void unCaughtException(Object err, StackTrace? stackTrace) {
@@ -43,51 +45,51 @@ void unCaughtException(Object err, StackTrace? stackTrace) {
   }
 }
 
-void main() {
-  FlutterError.onError =
-      (details) => unCaughtException(details.exception, details.stack);
+void main() async {
+  // FlutterError.onError =
+  //     (details) => unCaughtException(details.exception, details.stack);
 
-  runZonedGuarded(
-    () async {
-      // WidgetsFlutterBinding.ensureInitialized();
-      // await CustomNotification.requestNotificationPermissions();
-      await initServices();
-      runApp(
-        GetMaterialApp.router(
-          debugShowCheckedModeBanner: false,
-          defaultTransition: Transition.zoom,
-          transitionDuration: const Duration(milliseconds: 300),
-          theme: lightTheme,
-          darkTheme: darkTheme,
-          themeMode: ThemeMode.light,
-          localizationsDelegates: GlobalMaterialLocalizations.delegates,
-          supportedLocales: const [
-            Locale('en', ''),
-            Locale('zh', ''),
-            Locale('he', ''),
-            Locale('es', ''),
-            Locale('ru', ''),
-            Locale('ko', ''),
-            Locale('hi', ''),
-          ],
-          getPages: Pages.routes,
-          locale: TranslationService.locale,
-          fallbackLocale: TranslationService.fallbackLocale,
-          translations: TranslationService(),
-          builder: FlutterSmartDialog.init(), //FlutterSmartDialog框架初始化
-        ),
-      );
-      // https://stackoverflow.com/questions/56608171/how-to-make-flutter-app-draw-behind-android-navigation-bar-and-make-navigation-b
-      // 解决移动端顶部和底部沉浸体验问题
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          systemNavigationBarColor: Colors.transparent,
-          systemNavigationBarDividerColor: Colors.transparent,
-        ),
-      );
-    },
-    unCaughtException,
+  // runZonedGuarded(
+  //   () async {
+  // WidgetsFlutterBinding.ensureInitialized();
+  // await CustomNotification.requestNotificationPermissions();
+  await initServices();
+  runApp(
+    GetMaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      defaultTransition: Transition.zoom,
+      transitionDuration: const Duration(milliseconds: 300),
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: ThemeMode.light,
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
+      supportedLocales: const [
+        Locale('en', ''),
+        Locale('zh', ''),
+        Locale('he', ''),
+        Locale('es', ''),
+        Locale('ru', ''),
+        Locale('ko', ''),
+        Locale('hi', ''),
+      ],
+      getPages: Pages.routes,
+      locale: TranslationService.locale,
+      fallbackLocale: TranslationService.fallbackLocale,
+      translations: TranslationService(),
+      builder: FlutterSmartDialog.init(), //FlutterSmartDialog框架初始化
+    ),
   );
+  // https://stackoverflow.com/questions/56608171/how-to-make-flutter-app-draw-behind-android-navigation-bar-and-make-navigation-b
+  // 解决移动端顶部和底部沉浸体验问题
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
+    ),
+  );
+  // },
+  //   unCaughtException,
+  // );
 }

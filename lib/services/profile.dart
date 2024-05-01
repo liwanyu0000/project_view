@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
+import '../utils/adaptive.dart';
+
 class ProfileService extends GetxService {
   static ProfileService instance([String? tag]) => Get.find(tag: tag);
-  static ProfileService get to => instance();
+  static ProfileService? get to => Adaptive.isWeb ? null : Get.find();
 
   final String name;
   final String? path;
@@ -13,11 +15,12 @@ class ProfileService extends GetxService {
 
   ProfileService([this.name = 'GetStorage', this.path, this.initialData]);
 
-  Future<ProfileService> init() async {
-     WidgetsFlutterBinding.ensureInitialized();
-     box = GetStorage(name, path, initialData);
-     await box.initStorage;
-     return this;
+  Future<ProfileService?> init() async {
+    if (Adaptive.isWeb) return null;
+    WidgetsFlutterBinding.ensureInitialized();
+    box = GetStorage(name, path, initialData);
+    await box.initStorage;
+    return this;
   }
 
   @override

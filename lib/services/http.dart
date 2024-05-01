@@ -22,6 +22,7 @@
 ///    错误：_ResonseModel<code, message, data> => <statusCode, statusText, body>
 ///    正常：_ResonseModel<message, data> => <statusText, body>
 ///  后续Repository层通过isOK&hasError判断是否成功，成功情况下直接解析body，失败通过statusCode判断错误类型分别处理
+library;
 
 import 'dart:convert';
 

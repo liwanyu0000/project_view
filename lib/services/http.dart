@@ -45,7 +45,7 @@ class _ResponseModel<T> {
   factory _ResponseModel.fromJson(Map<String, dynamic> json) {
     return _ResponseModel(
       code: json['code'],
-      message: json['message'],
+      message: json['msg'],
       data: json['data'],
     );
   }
@@ -68,9 +68,19 @@ class HttpService extends GetxService {
   @override
   void onInit() {
     _http.httpClient.defaultDecoder = (val) {
+      if (val is String) {
+        try {
+          Map<String, dynamic> tmp = json.decode(val);
+          if (tmp['code'] is int && tmp['msg'] is String) {
+            return _ResponseModel.fromJson(tmp);
+          }
+        } catch (e) {
+          return val;
+        }
+      }
       if (val is Map<String, dynamic> &&
           val['code'] is int &&
-          val['message'] is String) {
+          val['msg'] is String) {
         return _ResponseModel.fromJson(val);
       }
       return val;

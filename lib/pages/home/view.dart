@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:project_view/pages/components/base_dialog.dart';
 import 'package:project_view/pages/components/customize_widget.dart';
+import 'package:project_view/pages/home/components/login_register_view.dart';
 import 'package:project_view/pages/home/components/sidebar.dart';
 import 'package:project_view/pages/message/view.dart';
 import 'package:project_view/utils/router.dart';
@@ -65,7 +66,10 @@ class HomeView extends GetView<HomeController> {
           _creatActionBut(
             context,
             icon: Icons.person,
-            onTap: () => rootRouter.toPage(Pages.person),
+            onTap: () async {
+              if (controller.isLogin) return rootRouter.toPage(Pages.person);
+              showSmartDialog(child: const LoginRegisterView());
+            },
           ),
           const SizedBox(width: 10),
         ],

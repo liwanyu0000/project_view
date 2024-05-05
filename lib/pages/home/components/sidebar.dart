@@ -42,12 +42,9 @@ class SideBar {
         if (_isfixed) return;
         close();
       },
-      cancel: close,
       height: Adaptive.getHeight(context),
       width: rightWidth(context),
-      titleWidget: title,
       child: child,
-      actions: [],
       alignment: Alignment.centerRight,
       dialogTag: dialogTag,
       ignoreArea: Rect.fromLTRB(0, topHeight, 0, 0),

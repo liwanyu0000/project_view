@@ -36,13 +36,24 @@ class HomeController extends GetxController {
   final Map<String, dynamic> _editInfo = {};
   setEditInfo(String key, String value) => _editInfo[key] = value;
   getEditInfo(String key) => _editInfo[key];
-  register() =>
-      hookExceptionWithSnackbar(() async => await userRepo.register(_editInfo));
+  cleanEditInfo() => _editInfo.clear();
+  Future<bool> register() => userRepo.register(_editInfo);
   login() => hookExceptionWithSnackbar(
       () async => _me.value = await userRepo.login(_editInfo));
   setIsLoginView() {
     refreshCode();
     _isLoginView.value = !isLoginView;
+  }
+
+  logout() {
+    _me.value = null;
+    rootRouter.toPage(Pages.front);
+  }
+
+  // 修改密码
+  Future<bool> changePwd() async {
+    _editInfo['id'] = me?.id;
+    return await userRepo.changePwd(_editInfo);
   }
 
   // 移动端底部导航

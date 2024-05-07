@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:project_view/utils/adaptive.dart';
 
-import '../../services/logger.dart';
+import '../base_page/base_view.dart';
 import 'controller.dart';
 
-class PersonView extends GetView<PersonController> {
+class PersonView extends BaseView<PersonController> {
   const PersonView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    LoggerService.to.t('build', tag: [runtimeType]);
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[Text('person view')],
-      ),
-    );
+  Widget viewBuild(BuildContext context) {
+    return Adaptive.isSmall(context)
+        ? const Center(
+            child: Text("Person"),
+          )
+        : Align(
+            alignment: Alignment.topCenter,
+            child: Container(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: Column(
+                  children: [
+                    Image.network(controller.me?.avatar ?? ""),
+                    const Text("Person"),
+                  ],
+                )),
+          );
   }
 }

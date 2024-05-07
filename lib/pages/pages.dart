@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:project_view/pages/message/binding.dart';
 
 import 'favorite/binding.dart';
 import 'favorite/view.dart';
@@ -29,29 +30,30 @@ class Pages {
       participatesInRootNavigator: true,
       preventDuplicates: true,
       name: home,
-      bindings: [HomeBinding()],
+      binding: HomeBinding(),
       page: () => const HomeView(),
       children: [
         GetPage(
           name: '/front',
-          bindings: [FrontBinding()],
+          binding: FrontBinding(),
           page: () => const FrontView(),
           transition: transition,
         ),
         GetPage(
           name: '/message',
+          binding: MessageBinding(),
           page: () => const MessageView(),
           transition: transition,
         ),
         GetPage(
           name: '/favorite',
-          bindings: [FavoriteBinding()],
+          binding: FavoriteBinding(),
           page: () => const FavoriteView(),
           transition: transition,
         ),
         GetPage(
           name: '/person',
-          bindings: [PersonBinding()],
+          binding: PersonBinding(),
           page: () => const PersonView(),
           transition: transition,
         ),

@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:project_view/pages/components/base_dialog.dart';
+import 'package:project_view/pages/components/From_view.dart/change_pwd_view.dart';
+import 'package:project_view/pages/components/base_popmenu.dart';
+import 'package:project_view/pages/components/custom_circle_avatar.dart';
 import 'package:project_view/pages/components/customize_widget.dart';
-import 'package:project_view/pages/home/components/login_register_view.dart';
+import 'package:project_view/pages/components/From_view.dart/login_register_view.dart';
 import 'package:project_view/pages/home/components/sidebar.dart';
 import 'package:project_view/pages/message/view.dart';
 import 'package:project_view/utils/router.dart';
 
 import '../../config/constants.dart';
 import '../../services/logger.dart';
+import '../message/controller.dart';
 import '../pages.dart';
 import 'components/main_frame/main_frame.dart';
 import 'controller.dart';
@@ -23,7 +26,7 @@ class HomeView extends GetView<HomeController> {
     Widget Function(bool)? child,
     double? width,
     double? gap,
-    required Function() onTap,
+    Function()? onTap,
   }) =>
       CustomizeWidget(
         icon: icon,
@@ -53,28 +56,60 @@ class HomeView extends GetView<HomeController> {
           onTap: () => rootRouter.toPage(Pages.front),
         ),
         actions: [
-          _creatActionBut(
-            context,
-            icon: Icons.message_outlined,
-            onTap: () => SideBar.open(context, const MessageView()),
-          ),
-          _creatActionBut(
-            context,
-            icon: Icons.favorite_border,
-            onTap: () => rootRouter.toPage(Pages.favorite),
-          ),
-          _creatActionBut(
-            context,
-            icon: Icons.person,
-            onTap: () async {
-              if (controller.isLogin) return rootRouter.toPage(Pages.person);
-              showSmartDialog(child: const LoginRegisterView());
-            },
-          ),
+          if (controller.isLogin)
+            _creatActionBut(
+              context,
+              icon: Icons.message_outlined,
+              onTap: () {
+                Get.lazyPut(() => MessageController());
+                SideBar.open(context, const MessageView());
+              },
+            ),
+          if (controller.isLogin)
+            _creatActionBut(
+              context,
+              icon: Icons.favorite_border,
+              onTap: () => rootRouter.toPage(Pages.favorite),
+            ),
+          if (!controller.isLogin)
+            _creatActionBut(
+              context,
+              label: '登录/注册',
+              onTap: () => toLogin(false),
+            ),
+          if (controller.isLogin)
+            PopMenu.item(
+              item: [
+                CustomizeWidget.menuItem(
+                  icon: Icons.person_2_outlined,
+                  label: "个人信息",
+                  onTap: () => rootRouter.toPage(Pages.person),
+                ),
+                CustomizeWidget.menuItem(
+                  icon: Icons.lock_outlined,
+                  label: "修改密码",
+                  onTap: () => toChangPwd(false),
+                ),
+                CustomizeWidget.menuItem(
+                  icon: Icons.logout,
+                  label: "退出登录",
+                  onTap: controller.logout,
+                )
+              ],
+              child: _creatActionBut(
+                context,
+                child: (_) => CustomCircleAvatar(
+                  text: controller.me!.nickname,
+                  avatarImageUrl: controller.me?.avatar,
+                  radius: 12,
+                  fontSize: 12,
+                ),
+              ),
+            ),
           const SizedBox(width: 10),
         ],
         floatingActionButton: FloatingActionButton(
-          onPressed: () {},
+          onPressed: toLogin,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
           child: const Icon(Icons.add),

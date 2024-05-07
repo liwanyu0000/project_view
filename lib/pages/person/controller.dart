@@ -1,3 +1,3 @@
-import 'package:get/get.dart';
+import '../base_page/base_controller.dart';
 
-class PersonController extends GetxController {}
+class PersonController extends BaseController {}

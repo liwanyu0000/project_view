@@ -50,7 +50,7 @@ class BaseDialog extends StatelessWidget {
   }
 }
 
-dynamic showSmartDialog({
+Future<dynamic> showSmartDialog({
   Widget? child,
   EdgeInsetsGeometry? contentPadding,
   EdgeInsetsGeometry? dialogMargin,
@@ -69,27 +69,26 @@ dynamic showSmartDialog({
   void Function()? onDismiss,
   void Function()? onMask,
   Rect? ignoreArea,
-}) async {
-  await SmartDialog.show(
-    tag: dialogTag,
-    keepSingle: keepSingle,
-    maskColor: maskColor,
-    usePenetrate: usePenetrate,
-    alignment: alignment ?? Alignment.center,
-    clickMaskDismiss: clickMaskDismiss,
-    onDismiss: onDismiss,
-    onMask: onMask,
-    ignoreArea: ignoreArea,
-    builder: (context) => BaseDialog(
-      contentPadding: contentPadding,
-      dialogMargin: dialogMargin,
-      dialogPadding: dialogPadding,
-      boxShadow: boxShadow,
-      decoration: decoration,
-      width: width,
-      height: height,
-      flexible: flexible,
-      child: child,
-    ),
-  );
-}
+}) async =>
+    await SmartDialog.show(
+      tag: dialogTag,
+      keepSingle: keepSingle,
+      maskColor: maskColor,
+      usePenetrate: usePenetrate,
+      alignment: alignment ?? Alignment.center,
+      clickMaskDismiss: clickMaskDismiss,
+      onDismiss: onDismiss,
+      onMask: onMask,
+      ignoreArea: ignoreArea,
+      builder: (context) => BaseDialog(
+        contentPadding: contentPadding,
+        dialogMargin: dialogMargin,
+        dialogPadding: dialogPadding,
+        boxShadow: boxShadow,
+        decoration: decoration,
+        width: width,
+        height: height,
+        flexible: flexible,
+        child: child,
+      ),
+    );

@@ -29,4 +29,12 @@ class UserRepo {
       decoder: (data) => data,
     );
   }
+
+  Future<bool> changePwd(Map<String, dynamic> json) async {
+    return await _http.post(
+      '/user/changePwd',
+      json,
+      decoder: (data) => data,
+    );
+  }
 }

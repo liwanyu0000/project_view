@@ -1,3 +1,3 @@
-import 'package:get/get.dart';
+import '../base_page/base_controller.dart';
 
-class FavoriteController extends GetxController {}
+class FavoriteController extends BaseController {}

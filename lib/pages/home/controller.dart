@@ -8,6 +8,7 @@ import 'package:project_view/model/user/verify_code.dart';
 import 'package:project_view/pages/components/snackbar.dart';
 import 'package:project_view/pages/pages.dart';
 import 'package:project_view/repo/user_repo.dart';
+import 'package:project_view/utils/area.dart';
 import 'package:project_view/utils/utils.dart';
 
 import '../../config/constants.dart';
@@ -16,6 +17,9 @@ class HomeController extends GetxController {
   final UserRepo userRepo;
   HomeController(this.userRepo);
   RxInt counter = 0.obs;
+
+  final Rx<RootAreaNode?> _area = Rx(null);
+  RootAreaNode? get area => _area.value;
 
   final Rx<UserLoginModel?> _me = Rx<UserLoginModel?>(null);
 
@@ -38,8 +42,7 @@ class HomeController extends GetxController {
   getEditInfo(String key) => _editInfo[key];
   cleanEditInfo() => _editInfo.clear();
   Future<bool> register() => userRepo.register(_editInfo);
-  login() => hookExceptionWithSnackbar(
-      () async => _me.value = await userRepo.login(_editInfo));
+  login() async => _me.value = await userRepo.login(_editInfo);
   setIsLoginView() {
     refreshCode();
     _isLoginView.value = !isLoginView;
@@ -80,6 +83,7 @@ class HomeController extends GetxController {
         if (!appWindow.isVisible) appWindow.show();
       });
     }
+    AreaNode.loadFile().then((value) => _area.value = value);
     if (Adaptive.isWeb) {}
     if (Adaptive.isMobile) {}
     _verifyCode

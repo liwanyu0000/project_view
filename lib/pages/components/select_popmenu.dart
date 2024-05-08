@@ -18,8 +18,14 @@ class SelectPopMenu extends StatefulWidget {
   final List<SelectData> item;
   final double? width;
   final void Function(SelectData value)? onSelect;
-  const SelectPopMenu(
-      {super.key, required this.item, this.onSelect, this.width});
+  final dynamic initValue;
+  const SelectPopMenu({
+    super.key,
+    required this.item,
+    this.onSelect,
+    this.width,
+    this.initValue,
+  });
 
   @override
   State<SelectPopMenu> createState() => _SelectPopMenuState();
@@ -27,6 +33,17 @@ class SelectPopMenu extends StatefulWidget {
 
 class _SelectPopMenuState extends State<SelectPopMenu> {
   SelectData? _slelct;
+
+  @override
+  void initState() {
+    super.initState();
+    for (var e in widget.item) {
+      if (e.value == widget.initValue) {
+        _slelct = e;
+        break;
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -52,6 +52,30 @@ abstract class AreaNode {
     return RootAreaNode.fromJson(json);
   }
 
+  static String getProvinceCode(String? code) {
+    if (code == null) return '';
+    if (code.length < 2) return '';
+    return code.substring(0, 2);
+  }
+
+  static String getCityCode(String? code) {
+    if (code == null) return '';
+    if (code.length < 4) return '';
+    return code.substring(0, 4);
+  }
+
+  static String getCountyCode(String? code) {
+    if (code == null) return '';
+    if (code.length < 6) return '';
+    return code.substring(0, 6);
+  }
+
+  static String getStreetCode(String? code) {
+    if (code == null) return '';
+    if (code.length < 9) return '';
+    return code.substring(0, 9);
+  }
+
   AreaNode? findFromCode(String code);
 }
 

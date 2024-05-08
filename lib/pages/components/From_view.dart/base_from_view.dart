@@ -27,6 +27,29 @@ abstract class BaseFromView extends GetView<HomeController> {
         }
       });
 
+  Widget creatItem(
+    BuildContext context, {
+    required String label,
+    required Widget child,
+  }) =>
+      Row(
+        children: [
+          SizedBox(
+            width: 64,
+            child: Text(
+              label,
+              // textAlign:
+              //     Adaptive.isSmall(context) ? TextAlign.start : TextAlign.end,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(width: 20),
+          Flexible(child: child),
+        ],
+      );
+
   List<Widget> creatItems(BuildContext context, GlobalKey<FormState> formKey);
 
   Widget creatFrom(BuildContext context) {
@@ -101,6 +124,7 @@ abstract class BaseFromView extends GetView<HomeController> {
     BuildContext context, {
     required String label,
     dynamic Function()? onTap,
+    double? width,
   }) =>
       CustomizeWidget(
         label: label,
@@ -111,6 +135,7 @@ abstract class BaseFromView extends GetView<HomeController> {
           backgroundColor: Theme.of(context).primaryColor,
           borderColor: Theme.of(context).primaryColor,
           primaryColor: Theme.of(context).canvasColor,
+          width: width,
         ),
       );
 }

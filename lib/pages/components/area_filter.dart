@@ -9,14 +9,14 @@ import 'package:project_view/utils/adaptive.dart';
 import 'package:project_view/utils/area.dart';
 
 Widget _creatFilter(BuildContext context,
-        {String? label, bool canSelect = false, double width = 100}) =>
+        {String? label, bool canSelect = false, double childWidth = 100}) =>
     CustomizeWidget(
       label: label ?? '-----',
       onTap: canSelect ? null : () {},
       tooltip: label,
       config: CustomizeWidgetConfig(
-        textMaxLenth: width - 24,
-        width: width,
+        textMaxLenth: childWidth - 24,
+        width: childWidth,
         haveBorder: true,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         backgroundColor: canSelect ? null : borderColor(context.isDarkMode),
@@ -54,14 +54,20 @@ Widget _creatPopMenu(
         context,
         label: node?.name,
         canSelect: canSelect,
-        width: childWidth ?? 100,
+        childWidth: childWidth ?? 100,
       ),
     );
 
 class ProvinceFilter extends StatefulWidget {
   final RootAreaNode area;
   final void Function(ProvinceAreaNode node)? onSelected;
-  const ProvinceFilter({super.key, required this.area, this.onSelected});
+  final String? initProvice;
+  const ProvinceFilter({
+    super.key,
+    required this.area,
+    this.onSelected,
+    this.initProvice,
+  });
 
   @override
   State<ProvinceFilter> createState() => _ProvinceFilterState();
@@ -69,6 +75,18 @@ class ProvinceFilter extends StatefulWidget {
 
 class _ProvinceFilterState extends State<ProvinceFilter> {
   ProvinceAreaNode? _province;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initProvice != null) {
+      String provinceCode = AreaNode.getProvinceCode(widget.initProvice);
+      if (provinceCode.isNotEmpty) {
+        _province = widget.area.findFromCode(provinceCode) as ProvinceAreaNode;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double childWidth = min(Adaptive.getWidth(context) * .2, 160);
@@ -92,7 +110,9 @@ class _ProvinceFilterState extends State<ProvinceFilter> {
 class AreaFilter extends StatefulWidget {
   final ProvinceAreaNode province;
   final void Function(AreaNode node)? onSelected;
-  const AreaFilter({super.key, required this.province, this.onSelected});
+  final String? initNode;
+  const AreaFilter(
+      {super.key, required this.province, this.onSelected, this.initNode});
 
   @override
   State<AreaFilter> createState() => _AreaFilterState();
@@ -108,6 +128,20 @@ class _AreaFilterState extends State<AreaFilter> {
   @override
   void initState() {
     super.initState();
+    if (widget.initNode != null) {
+      String cityCode = AreaNode.getCityCode(widget.initNode);
+      String countyCode = AreaNode.getCountyCode(widget.initNode);
+      String streetCode = AreaNode.getStreetCode(widget.initNode);
+      if (cityCode.isNotEmpty) {
+        _city = widget.province.findFromCode(cityCode) as CityAreaNode?;
+      }
+      if (countyCode.isNotEmpty) {
+        _county = _city?.findFromCode(countyCode) as CountyAreaNode?;
+      }
+      if (streetCode.isNotEmpty) {
+        _street = _county?.findFromCode(streetCode) as StreetAreaNode?;
+      }
+    }
     if (isOneCity) _city = widget.province.children.first;
   }
 
@@ -119,7 +153,12 @@ class _AreaFilterState extends State<AreaFilter> {
       mainAxisSize: MainAxisSize.min,
       children: [
         isOneCity
-            ? _creatFilter(context, label: _city?.name, canSelect: false)
+            ? _creatFilter(
+                context,
+                label: _city?.name,
+                canSelect: false,
+                childWidth: childWidth * .8,
+              )
             : _creatPopMenu(
                 context,
                 maxHeight: height,

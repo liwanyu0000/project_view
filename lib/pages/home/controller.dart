@@ -5,8 +5,10 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:get/get.dart';
 import 'package:project_view/model/user/user_login.dart';
 import 'package:project_view/model/user/verify_code.dart';
+import 'package:project_view/pages/components/select_imgs.dart';
 import 'package:project_view/pages/components/snackbar.dart';
 import 'package:project_view/pages/pages.dart';
+import 'package:project_view/repo/house_repo.dart';
 import 'package:project_view/repo/user_repo.dart';
 import 'package:project_view/utils/area.dart';
 import 'package:project_view/utils/utils.dart';
@@ -15,7 +17,8 @@ import '../../config/constants.dart';
 
 class HomeController extends GetxController {
   final UserRepo userRepo;
-  HomeController(this.userRepo);
+  final HouseRepo houseRepo;
+  HomeController(this.userRepo, this.houseRepo);
   RxInt counter = 0.obs;
 
   final Rx<RootAreaNode?> _area = Rx(null);
@@ -38,11 +41,15 @@ class HomeController extends GetxController {
   final RxBool _isLoginView = RxBool(true);
   bool get isLoginView => _isLoginView.value;
   final Map<String, dynamic> _editInfo = {};
-  setEditInfo(String key, String value) => _editInfo[key] = value;
+  setEditInfo(String key, dynamic value) => _editInfo[key] = value;
   getEditInfo(String key) => _editInfo[key];
   cleanEditInfo() => _editInfo.clear();
   Future<bool> register() => userRepo.register(_editInfo);
-  login() async => _me.value = await userRepo.login(_editInfo);
+  login() async {
+    _editInfo.remove('provinceNode');
+    return _me.value = await userRepo.login(_editInfo);
+  }
+
   setIsLoginView() {
     refreshCode();
     _isLoginView.value = !isLoginView;
@@ -58,6 +65,25 @@ class HomeController extends GetxController {
     _editInfo['id'] = me?.id;
     return await userRepo.changePwd(_editInfo);
   }
+
+  // 发布房屋信息
+  Future<bool> addHouse() async {
+    final json = {
+      'houseInfo': {
+        'addrCode': _editInfo['addrCode'],
+        'addr': _editInfo['addr'],
+        'describe': _editInfo['describe'],
+      }.toString(),
+      'houseTerritory': _editInfo['houseTerritory'],
+      'houseTardeType': _editInfo['houseTardeType'],
+      'houseFile': _editInfo['houseFile'].join(','),
+      'userID': me?.id,
+    };
+    return await houseRepo.addHouse(json);
+  }
+
+  // 图像选择器
+  SelectImgController selectImgController = SelectImgController();
 
   // 移动端底部导航
   final RxInt _index = 0.obs;

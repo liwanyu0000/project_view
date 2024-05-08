@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:project_view/repo/house_repo.dart';
 import 'package:project_view/repo/user_repo.dart';
 
 import 'controller.dart';
@@ -6,6 +7,9 @@ import 'controller.dart';
 class HomeBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<HomeController>(() => HomeController(UserRepo(Get.find())));
+    Get.lazyPut<HomeController>(() => HomeController(
+          UserRepo(Get.find()),
+          HouseRepo(Get.find()),
+        ));
   }
 }

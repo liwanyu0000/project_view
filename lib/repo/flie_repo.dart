@@ -24,48 +24,75 @@ class FileRepo {
   Future<List<String>> _uploadFileItem(
       List<MultipartFile> multipartFiles) async {
     FormData data = FormData({'files': multipartFiles});
-    List<String> res;
-    try {
-      res = await _http.post(
-        '/upload/files',
-        data,
-        decoder: (data) => (data as List).cast(),
-        uploadProgress: (percent) {
-          // print('upload: $percent');
-        },
-      );
-    } catch (e) {
-      res = [];
-    }
-    return res;
+    return _http.post(
+      '/upload/files',
+      data,
+      decoder: (data) => (data as List).cast(),
+      uploadProgress: (percent) {
+        // print('upload: $percent');
+      },
+    );
   }
 
+  /// 注意： 上传的单个文件不能超过10MB
   Future<List<String>> uploadFiles(
     List<PlatformFile> files, {
-    dynamic Function(int upnum)? uploadProgress,
+    dynamic Function(int upnum, int failednum)? uploadProgress,
+    dynamic Function(List<String> filename, String error)? onError,
+    dynamic Function(List<String> urls)? onSuccess,
   }) async {
     List<MultipartFile> multipartFiles = [];
     List<String> ans = [];
     int count = 0;
     int upnum = 0;
+    int failednum = 0;
     for (var file in files) {
-      if (file.path == null) continue;
+      if (file.path == null || file.size > 1024 * 1024 * 10) {
+        failednum++;
+        onError?.call([file.name], 'file size too large or path is null');
+        continue;
+      }
       File fileData = File(file.path!);
       multipartFiles.add(MultipartFile(fileData, filename: file.name));
       count += file.size;
       if (count > 1024 * 1024 * 5) {
-        upnum += multipartFiles.length;
-        List<String> res = await _uploadFileItem(multipartFiles);
-        uploadProgress?.call(upnum);
-        if (res.isEmpty) printError(info: "upload failed");
-        ans.addAll(res);
+        List<String> res;
+        try {
+          res = await _uploadFileItem(multipartFiles);
+        } catch (e) {
+          onError?.call(
+            multipartFiles.map((e) => e.filename).toList(),
+            e.toString(),
+          );
+          failednum += multipartFiles.length;
+          res = [];
+        }
         count = 0;
         multipartFiles = [];
+        if (res.isNotEmpty) {
+          upnum += res.length;
+          uploadProgress?.call(upnum, failednum);
+          onSuccess?.call(res);
+          ans.addAll(res);
+        }
       }
     }
-    upnum += multipartFiles.length;
-    List<String> res = await _uploadFileItem(multipartFiles);
-    uploadProgress?.call(upnum);
+    List<String> res;
+    if (multipartFiles.isEmpty) return ans;
+    try {
+      res = await _uploadFileItem(multipartFiles);
+    } catch (e) {
+      onError?.call(
+        multipartFiles.map((e) => e.filename).toList(),
+        e.toString(),
+      );
+      failednum += multipartFiles.length;
+      res = [];
+    }
+    if (res.isEmpty) return ans;
+    upnum += res.length;
+    uploadProgress?.call(upnum, failednum);
+    onSuccess?.call(res);
     ans.addAll(res);
     return ans;
   }

@@ -40,7 +40,7 @@ class CustomLoading extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          Text(text ?? 'loading...'.tr)
+          Flexible(child: Text(text ?? 'loading...'.tr))
         ],
       ),
     );

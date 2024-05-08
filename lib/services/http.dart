@@ -123,12 +123,17 @@ class HttpService extends GetxService {
       final requestBody = (await request.bodyBytes.toList())
           .expand((element) => element)
           .toList();
-      if (requestBody.isNotEmpty) logger.t(utf8.decode(requestBody), tag: '→');
-      if (!_isResponseBodyEmpty(response.body)) {
-        logger.t(response.body, tag: '←');
-      } else if (!_isResponseBodyEmpty(response.bodyString)) {
-        logger.t(response.bodyString, tag: '←');
-      }
+      try {
+        if (!_isResponseBodyEmpty(response.body)) {
+          if (requestBody.isNotEmpty) {
+            logger.t(utf8.decode(requestBody), tag: '→');
+          }
+          logger.t(response.body, tag: '←');
+        } else if (!_isResponseBodyEmpty(response.bodyString)) {
+          logger.t(response.bodyString, tag: '←');
+        }
+        // ignore: empty_catches
+      } catch (e) {}
 
       return response;
     });

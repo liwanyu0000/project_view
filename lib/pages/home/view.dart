@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:project_view/pages/components/From_view.dart/change_pwd_view.dart';
+import 'package:project_view/pages/components/From_view.dart/house_info_view.dart';
 import 'package:project_view/pages/components/base_popmenu.dart';
 import 'package:project_view/pages/components/custom_circle_avatar.dart';
 import 'package:project_view/pages/components/customize_widget.dart';
@@ -26,12 +27,14 @@ class HomeView extends GetView<HomeController> {
     Widget Function(bool)? child,
     double? width,
     double? gap,
+    String? tooltip,
     Function()? onTap,
   }) =>
       CustomizeWidget(
         icon: icon,
         label: label,
         prefixWidget: child,
+        tooltip: tooltip,
         config: CustomizeWidgetConfig(
           gap: gap,
           iconSize: 16,
@@ -52,14 +55,22 @@ class HomeView extends GetView<HomeController> {
         title: _creatActionBut(
           context,
           icon: Icons.home,
+          tooltip: '主页',
           label: kProductName,
           onTap: () => rootRouter.toPage(Pages.front),
         ),
         actions: [
+          // if (controller.isLogin)
+          _creatActionBut(
+            context,
+            label: '发布房源',
+            onTap: () => toHouseInfo(false),
+          ),
           if (controller.isLogin)
             _creatActionBut(
               context,
               icon: Icons.message_outlined,
+              tooltip: '消息',
               onTap: () {
                 Get.lazyPut(() => MessageController());
                 SideBar.open(context, const MessageView());
@@ -69,6 +80,7 @@ class HomeView extends GetView<HomeController> {
             _creatActionBut(
               context,
               icon: Icons.favorite_border,
+              tooltip: '收藏',
               onTap: () => rootRouter.toPage(Pages.favorite),
             ),
           if (!controller.isLogin)
@@ -109,7 +121,13 @@ class HomeView extends GetView<HomeController> {
           const SizedBox(width: 10),
         ],
         floatingActionButton: FloatingActionButton(
-          onPressed: toLogin,
+          onPressed:
+
+              // controller.isLogin ?
+              toHouseInfo
+
+          //  : toLogin
+          ,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
           child: const Icon(Icons.add),

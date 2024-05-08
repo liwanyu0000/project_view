@@ -5,7 +5,7 @@ import 'base_from_view.dart';
 class UserInfoView extends BaseFromView {
   const UserInfoView({super.key});
   @override
-  List<Widget> creatItem(BuildContext context, GlobalKey<FormState> formKey) =>
+  List<Widget> creatItems(BuildContext context, GlobalKey<FormState> formKey) =>
       [
         // creatTextField(context, 'oldPwd',
         //     hintText: '旧密码',

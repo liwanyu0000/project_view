@@ -99,8 +99,8 @@ InputDecoration? decorationConfig(
       floatingLabelAlignment: floatingLabelAlignment,
       isCollapsed: isCollapsed,
       isDense: isDense,
-      contentPadding:
-          contentPadding ?? const EdgeInsets.symmetric(horizontal: 10),
+      contentPadding: contentPadding ??
+          const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       prefixIcon: prefixIcon,
       prefixIconConstraints: prefixIconConstraints,
       prefix: prefix,

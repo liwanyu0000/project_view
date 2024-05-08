@@ -76,7 +76,7 @@ class LoginRegisterView extends BaseFromView {
       ];
 
   @override
-  List<Widget> creatItem(BuildContext context, GlobalKey<FormState> formKey) =>
+  List<Widget> creatItems(BuildContext context, GlobalKey<FormState> formKey) =>
       (controller.isLoginView ? _loginItem : _registerItem)(context, formKey);
 
   @override

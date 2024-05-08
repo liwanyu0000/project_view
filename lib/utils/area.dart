@@ -43,6 +43,9 @@ abstract class AreaNode {
   /// 街道级节点
   bool get haveStreet => street.isNotEmpty;
 
+  /// 获取省code
+  String get provinceCode => haveProvince ? code.substring(0, 2) : '';
+
   static Future<RootAreaNode> loadFile() async {
     final String data = await rootBundle.loadString("assets/json/area.json");
     dynamic json = jsonDecode(data);

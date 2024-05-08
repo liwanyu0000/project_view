@@ -27,11 +27,11 @@ abstract class BaseFromView extends GetView<HomeController> {
         }
       });
 
-  List<Widget> creatItem(BuildContext context, GlobalKey<FormState> formKey);
+  List<Widget> creatItems(BuildContext context, GlobalKey<FormState> formKey);
 
   Widget creatFrom(BuildContext context) {
     GlobalKey<FormState> formKey = GlobalKey<FormState>();
-    List<Widget> item = creatItem(context, formKey);
+    List<Widget> item = creatItems(context, formKey);
     return Form(
       key: formKey,
       child: ListView.separated(
@@ -43,11 +43,15 @@ abstract class BaseFromView extends GetView<HomeController> {
     );
   }
 
-  Widget creatTextField(BuildContext context, String key,
-          {String? hintText,
-          TextInputType? keyboardType,
-          String? Function(String?)? validator,
-          bool obscureText = false}) =>
+  Widget creatTextField(
+    BuildContext context,
+    String key, {
+    String? hintText,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+    bool obscureText = false,
+    int maxLines = 1,
+  }) =>
       TextFormField(
         decoration: decorationConfig(
           context,
@@ -57,6 +61,7 @@ abstract class BaseFromView extends GetView<HomeController> {
         validator: validator,
         initialValue: controller.getEditInfo(key),
         obscureText: obscureText,
+        maxLines: maxLines,
         onChanged: (value) => controller.setEditInfo(key, value),
       );
 
@@ -111,10 +116,10 @@ abstract class BaseFromView extends GetView<HomeController> {
 }
 
 Future<dynamic> toFrom(BaseFromView child, String title,
-        [bool isPage = true]) async =>
+        [bool isPage = true, double? width]) async =>
     isPage
         ? await Get.to(() => BasePage(
               title: title,
               child: child,
             ))
-        : await showSmartDialog(child: child);
+        : await showSmartDialog(child: child, keepSingle: false, width: width);

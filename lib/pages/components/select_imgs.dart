@@ -82,6 +82,18 @@ class _SelectImgState extends State<SelectImg> {
                   e,
                   width: imgSize,
                   height: imgSize,
+                  loadingBuilder: (context, child, loadingProgress) =>
+                      loadingProgress == null
+                          ? child
+                          : CustomLoading(
+                              width: imgSize, height: imgSize, text: '加载中...'),
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    width: imgSize,
+                    height: imgSize,
+                    alignment: Alignment.center,
+                    color: labelColor(context.isDarkMode),
+                    child: const Icon(Icons.error_outline),
+                  ),
                 ),
               ),
               Positioned(
@@ -136,15 +148,20 @@ class _SelectImgState extends State<SelectImg> {
                   isUploading = true;
                 });
                 if (result != null) {
-                  setState(() => count = result.files.length);
+                  setState(() => count += result.files.length);
                   List<String> errImg = [];
                   await fileRepo.uploadFiles(
                     result.files,
-                    onSuccess: (urls) => setState(() => imageUrl.addAll(urls)),
+                    onSuccess: (urls) async {
+                      for (var e in urls) {
+                        setState(() => imageUrl.add(e));
+                        await Future.delayed(const Duration(milliseconds: 100));
+                      }
+                    },
                     uploadProgress: (upnum, failednum) {
                       setState(() {
-                        this.upnum = upnum;
-                        this.failednum = failednum;
+                        this.upnum += upnum;
+                        this.failednum += failednum;
                       });
                     },
                     onError: (filename, error) => errImg.addAll(filename),

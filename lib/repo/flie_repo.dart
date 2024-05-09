@@ -39,12 +39,13 @@ class FileRepo {
     List<PlatformFile> files, {
     dynamic Function(int upnum, int failednum)? uploadProgress,
     dynamic Function(List<String> filename, String error)? onError,
-    dynamic Function(List<String> urls)? onSuccess,
+    dynamic Function(
+      List<String> urls,
+    )? onSuccess,
   }) async {
     List<MultipartFile> multipartFiles = [];
     List<String> ans = [];
     int count = 0;
-    int upnum = 0;
     int failednum = 0;
     for (var file in files) {
       if (file.path == null || file.size > 1024 * 1024 * 10) {
@@ -67,11 +68,11 @@ class FileRepo {
           failednum += multipartFiles.length;
           res = [];
         }
+        uploadProgress?.call(res.length, failednum);
+        failednum = 0;
         count = 0;
         multipartFiles = [];
         if (res.isNotEmpty) {
-          upnum += res.length;
-          uploadProgress?.call(upnum, failednum);
           onSuccess?.call(res);
           ans.addAll(res);
         }
@@ -89,9 +90,8 @@ class FileRepo {
       failednum += multipartFiles.length;
       res = [];
     }
+    uploadProgress?.call(res.length, failednum);
     if (res.isEmpty) return ans;
-    upnum += res.length;
-    uploadProgress?.call(upnum, failednum);
     onSuccess?.call(res);
     ans.addAll(res);
     return ans;

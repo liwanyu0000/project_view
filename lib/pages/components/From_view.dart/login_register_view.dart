@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:project_view/pages/components/area_filter.dart';
 
 import '../snackbar.dart';
 import 'base_from_view.dart';
 
-class LoginRegisterView extends BaseFromView {
-  const LoginRegisterView({super.key});
+class _LoginRegisterView extends BaseFromView {
+  const _LoginRegisterView();
 
   List<Widget> _loginItem(BuildContext context, GlobalKey<FormState> formKey) {
     return [
-      creatTextField(context, 'username',
+      creatTextField(context, 'userName',
           hintText: '用户名',
           validator: (value) => value!.isEmpty ? '用户名不能为空' : null),
       creatTextField(context, 'password',
@@ -42,22 +41,20 @@ class LoginRegisterView extends BaseFromView {
   List<Widget> _registerItem(
       BuildContext context, GlobalKey<FormState> formKey) {
     return [
-      creatTextField(context, 'username',
+      creatTextField(context, 'userName',
           hintText: '用户名',
           validator: (value) => value!.isEmpty ? '用户名不能为空' : null),
       creatTextField(context, 'password',
           hintText: '密码',
           obscureText: true,
           validator: (value) => value!.isEmpty ? '密码不能为空' : null),
-      creatTextField(context, 'sPassword',
+      creatTextField(context, 'secondPassword',
           hintText: '再次确认密码',
           obscureText: true,
           validator: (value) => value!.isEmpty ? '确认密码不能为空' : null),
       creatTextField(context, 'nickName', hintText: '昵称'),
-      creatTextField(context, 'email', hintText: '邮箱'),
-      creatTextField(context, 'phone', hintText: '手机号'),
-      creatTextField(context, 'addr', hintText: '住址'),
-      AreaFilter(province: controller.area!.children[0]),
+      creatTextField(context, 'emails', hintText: '邮箱'),
+      creatTextField(context, 'phones', hintText: '手机号'),
       verifyCode(context),
       creatButon(
         context,
@@ -91,4 +88,4 @@ class LoginRegisterView extends BaseFromView {
 }
 
 Future<dynamic> toLogin([bool isPage = true]) async =>
-    toFrom(const LoginRegisterView(), '登录/注册', isPage);
+    toFrom(const _LoginRegisterView(), '登录/注册', isPage);

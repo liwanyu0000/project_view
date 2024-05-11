@@ -36,7 +36,7 @@ const IconSizeConfig _smallIconConfig = IconSizeConfig(
     primaryIconSize: 16,
     secondaryIconSize: 14,
     assistIconSize: 12,
-    hugAvatarIconSize: 40,
+    hugAvatarIconSize: 60,
     bigAvatarIconSize: 24,
     middleAvatarIconSize: 18,
     smallAvatarIconSize: 16);

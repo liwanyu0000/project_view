@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 
 import 'base_from_view.dart';
 
-class ChangePwdView extends BaseFromView {
-  const ChangePwdView({super.key});
+class _ChangePwdView extends BaseFromView {
+  const _ChangePwdView();
   @override
   List<Widget> creatItems(BuildContext context, GlobalKey<FormState> formKey) {
     return [
-      creatTextField(context, 'oldPwd',
+      creatTextField(context, 'oldPassword',
           hintText: '旧密码',
           obscureText: true,
           validator: (value) => value!.isEmpty ? '旧密码不能为空' : null),
-      creatTextField(context, 'newPwd',
+      creatTextField(context, 'password',
           hintText: '新密码',
           obscureText: true,
           validator: (value) => value!.isEmpty ? '新密码不能为空' : null),
-      creatTextField(context, 'sNewPwd',
+      creatTextField(context, 'secondPassword',
           hintText: '确认密码',
           obscureText: true,
           validator: (value) => value!.isEmpty ? '确认密码不能为空' : null),
@@ -41,4 +41,4 @@ class ChangePwdView extends BaseFromView {
 }
 
 Future<dynamic> toChangPwd([bool isPage = true]) async =>
-    toFrom(const ChangePwdView(), '修改密码', isPage);
+    toFrom(const _ChangePwdView(), '修改密码', isPage);

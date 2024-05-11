@@ -31,11 +31,9 @@ Future<void> initServices() async {
           ProfileService(kProductName, await getCacheDirectory()).init(),
     );
   }
-  Get.put(HttpService(logger, baseUrl: 'http://47.109.25.126/api'));
+  Get.put(HttpService(logger, baseUrl: 'https://liwanyu.top/api'));
   SmartDialog.config.attach =
       SmartConfigAttach(attachAlignmentType: SmartAttachAlignmentType.inside);
-  // 启动时默认为卡片视图
-  ProfileService.to?.write('isCardView', true);
 }
 
 void unCaughtException(Object err, StackTrace? stackTrace) {

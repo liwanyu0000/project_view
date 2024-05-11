@@ -1,3 +1,7 @@
+import 'package:project_view/model/user/change_pwd_w.dart';
+import 'package:project_view/model/user/user_login_w.dart';
+import 'package:project_view/model/user/user_register_w.dart';
+import 'package:project_view/model/user/user_w.dart';
 import 'package:project_view/model/user/verify_code.dart';
 
 import '../model/user/user_login.dart';
@@ -14,26 +18,53 @@ class UserRepo {
     );
   }
 
-  Future<UserLoginModel> login(Map<String, dynamic> json) async {
+  Future<UserLoginModel> login(UserLoginWriteModel model) async {
     return await _http.post(
       '/user/login',
-      json,
+      model.toJson(),
       decoder: (data) => UserLoginModel.fromJson(data),
     );
   }
 
-  Future<bool> register(Map<String, dynamic> json) async {
+  Future logout() async {
+    return await _http.delete('/user/logout');
+  }
+
+  Future<UserLoginModel> loginByToken() async {
+    return await _http.get(
+      '/user/loginByToken',
+      decoder: (data) => UserLoginModel.fromJson(data),
+    );
+  }
+
+  Future<bool> register(UserRegisterWriteModel model) async {
     return await _http.post(
       '/user/register',
-      json,
+      model.toJson(),
       decoder: (data) => data,
     );
   }
 
-  Future<bool> changePwd(Map<String, dynamic> json) async {
+  Future<bool> changePwd(ChangePwdWriteModel model) async {
     return await _http.post(
       '/user/changePwd',
-      json,
+      model.toJson(),
+      decoder: (data) => data,
+    );
+  }
+
+  Future<bool> changeInfo(UserWriteModle model) async {
+    return await _http.post(
+      '/user/changeInfo',
+      model.toJson(),
+      decoder: (data) => data,
+    );
+  }
+
+  Future<bool> changeAvatar(String? avatar) async {
+    return await _http.post(
+      '/user/changeInfo',
+      {'avatar': avatar},
       decoder: (data) => data,
     );
   }

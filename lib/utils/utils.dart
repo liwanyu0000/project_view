@@ -53,6 +53,7 @@ List<T> mapList<T>(List<dynamic>? list, T Function(dynamic) toElement) =>
 ///获取缓存目录
 Future<String?> getCacheDirectory() async {
   if (Adaptive.isWindows) {
+    print((await getApplicationCacheDirectory()).parent.parent.path);
     return join((await getApplicationCacheDirectory()).parent.parent.path,
         kProductName);
   }

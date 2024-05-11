@@ -3,7 +3,10 @@ import 'dart:ui';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:get/get.dart';
+import 'package:project_view/model/user/change_pwd_w.dart';
 import 'package:project_view/model/user/user_login.dart';
+import 'package:project_view/model/user/user_login_w.dart';
+import 'package:project_view/model/user/user_w.dart';
 import 'package:project_view/model/user/verify_code.dart';
 import 'package:project_view/pages/components/select_imgs.dart';
 import 'package:project_view/pages/components/snackbar.dart';
@@ -14,6 +17,9 @@ import 'package:project_view/utils/area.dart';
 import 'package:project_view/utils/utils.dart';
 
 import '../../config/constants.dart';
+import '../../model/user/user_register_w.dart';
+import '../../services/http.dart';
+import '../../services/profile.dart';
 
 class HomeController extends GetxController {
   final UserRepo userRepo;
@@ -27,6 +33,7 @@ class HomeController extends GetxController {
   final Rx<UserLoginModel?> _me = Rx<UserLoginModel?>(null);
 
   UserLoginModel? get me => _me.value;
+  set me(UserLoginModel? value) => _me.value = value;
 
   bool get isLogin => me != null;
 
@@ -44,10 +51,14 @@ class HomeController extends GetxController {
   setEditInfo(String key, dynamic value) => _editInfo[key] = value;
   getEditInfo(String key) => _editInfo[key];
   cleanEditInfo() => _editInfo.clear();
-  Future<bool> register() => userRepo.register(_editInfo);
+  setAllEditInfo(Map<String, dynamic> value) => _editInfo.addAll(value);
+  Future<bool> register() =>
+      userRepo.register(UserRegisterWriteModel.fromJson(_editInfo));
   login() async {
-    _editInfo.remove('provinceNode');
-    return _me.value = await userRepo.login(_editInfo);
+    _me.value = await userRepo.login(UserLoginWriteModel.fromJson(_editInfo));
+    cleanEditInfo();
+    HttpService.to.token = me?.token;
+    ProfileService.to?.write('token', me?.token);
   }
 
   setIsLoginView() {
@@ -55,15 +66,31 @@ class HomeController extends GetxController {
     _isLoginView.value = !isLoginView;
   }
 
-  logout() {
+  logout() async {
+    await userRepo.logout();
     _me.value = null;
     rootRouter.toPage(Pages.front);
+    HttpService.to.token = me?.token;
+    ProfileService.to?.remove('token');
   }
 
   // 修改密码
-  Future<bool> changePwd() async {
-    _editInfo['id'] = me?.id;
-    return await userRepo.changePwd(_editInfo);
+  Future<bool> changePwd() async =>
+      userRepo.changePwd(ChangePwdWriteModel.fromJson(_editInfo));
+  Future<void> changeInfo() async {
+    if (await userRepo.changeInfo(UserWriteModle.fromJson(_editInfo))) {
+      _me.value = me?.copyWith(
+        nickName: _editInfo['nickname'],
+        phones: _editInfo['phone'],
+        emails: _editInfo['email'],
+        addrCode: _editInfo['addrCode'],
+        addr: _editInfo['addr'],
+        sex: _editInfo['sex'],
+        birthday: _editInfo['birthday'],
+        favorite: _editInfo['favorite'],
+        signature: _editInfo['signature'],
+      );
+    }
   }
 
   // 发布房屋信息
@@ -109,7 +136,14 @@ class HomeController extends GetxController {
         if (!appWindow.isVisible) appWindow.show();
       });
     }
+    String? token = ProfileService.to?.read('token');
+    if (token != null) {
+      HttpService.to.token = token;
+      hookExceptionWithSnackbar(
+          () async => _me.value = await userRepo.loginByToken());
+    }
     AreaNode.loadFile().then((value) => _area.value = value);
+
     if (Adaptive.isWeb) {}
     if (Adaptive.isMobile) {}
     _verifyCode

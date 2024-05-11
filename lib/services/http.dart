@@ -197,6 +197,46 @@ class HttpService extends GetxService {
     );
   }
 
+  Future<T> put<T>(
+    String url,
+    dynamic body, {
+    String? contentType,
+    Map<String, String>? headers,
+    Map<String, dynamic>? query,
+    Progress? uploadProgress,
+    Decoder<T>? decoder,
+  }) async {
+    return _hookResponseWithException(
+      await _http.put(
+        url,
+        body,
+        headers: headers,
+        contentType: contentType,
+        query: query,
+        uploadProgress: uploadProgress,
+      ),
+      decoder,
+    );
+  }
+
+  Future<T> delete<T>(
+    String url, {
+    String? contentType,
+    Map<String, String>? headers,
+    Map<String, dynamic>? query,
+    Decoder<T>? decoder,
+  }) async {
+    return _hookResponseWithException(
+      await _http.delete(
+        url,
+        headers: headers,
+        contentType: contentType,
+        query: query,
+      ),
+      decoder,
+    );
+  }
+
   set token(String? newToken) {
     logger.i('Token modified: $_token  -> $newToken', tag: [runtimeType]);
     _token = newToken;

@@ -14,8 +14,8 @@ import '../area_filter.dart';
 import '../config/config.dart';
 import 'base_from_view.dart';
 
-class HouseInfoView extends BaseFromView {
-  const HouseInfoView({super.key});
+class _HouseInfoView extends BaseFromView {
+  const _HouseInfoView({super.key});
 
   @override
   List<Widget> creatItems(BuildContext context, GlobalKey<FormState> formKey) {
@@ -140,7 +140,7 @@ class HouseInfoView extends BaseFromView {
 }
 
 Future<dynamic> toHouseInfo([bool isPage = true]) async => toFrom(
-      const HouseInfoView(),
+      const _HouseInfoView(),
       '发布房源',
       isPage,
       Adaptive.getWidth() * .5,

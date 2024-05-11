@@ -14,7 +14,7 @@ import 'package:project_view/utils/adaptive.dart';
 
 class SelectImgController {
   SelectImgController();
-  FileRepo fileRepo = FileRepo(Get.find());
+  FileRepo fileRepo = FileRepo.instance;
   bool isUploading = false;
   bool isSelect = false;
   final List<String> imageUrl = [];

@@ -7,7 +7,12 @@ import '../services/http.dart';
 
 class FileRepo {
   final HttpService _http;
-  FileRepo(this._http);
+  FileRepo._(this._http);
+  static FileRepo? _instance;
+  static FileRepo get instance {
+    _instance ??= FileRepo._(Get.find());
+    return _instance!;
+  }
 
   Future<String> uploadFile(PlatformFile file) async {
     if (file.path == null) throw '上传失败';
@@ -28,9 +33,6 @@ class FileRepo {
       '/upload/files',
       data,
       decoder: (data) => (data as List).cast(),
-      uploadProgress: (percent) {
-        // print('upload: $percent');
-      },
     );
   }
 

@@ -22,7 +22,7 @@ abstract class BaseFromView extends GetView<HomeController> {
           if (Adaptive.isSmall()) {
             Get.back();
           } else {
-            SmartDialog.dismiss();
+            SmartDialog.dismiss(tag: "FromView");
           }
         }
       });
@@ -140,11 +140,20 @@ abstract class BaseFromView extends GetView<HomeController> {
       );
 }
 
-Future<dynamic> toFrom(BaseFromView child, String title,
-        [bool isPage = true, double? width]) async =>
+Future<dynamic> toFrom(
+  BaseFromView child,
+  String title, [
+  bool isPage = true,
+  double? width,
+]) async =>
     isPage
         ? await Get.to(() => BasePage(
               title: title,
               child: child,
             ))
-        : await showSmartDialog(child: child, keepSingle: false, width: width);
+        : await showSmartDialog(
+            child: child,
+            keepSingle: false,
+            width: width,
+            dialogTag: "FromView",
+          );

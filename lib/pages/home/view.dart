@@ -60,12 +60,18 @@ class HomeView extends GetView<HomeController> {
           onTap: () => rootRouter.toPage(Pages.front),
         ),
         actions: [
-          // if (controller.isLogin)
-          _creatActionBut(
-            context,
-            label: '发布房源',
-            onTap: () => toHouseInfo(false),
-          ),
+          if (controller.me?.isAdmin ?? false)
+            _creatActionBut(
+              context,
+              label: '用户管理',
+              // onTap: () => rootRouter.toPage(Pages.admin),
+            ),
+          if (controller.me?.canPublish ?? false)
+            _creatActionBut(
+              context,
+              label: '发布房源',
+              onTap: () => toHouseInfo(false),
+            ),
           if (controller.isLogin)
             _creatActionBut(
               context,
@@ -111,7 +117,7 @@ class HomeView extends GetView<HomeController> {
               child: _creatActionBut(
                 context,
                 child: (_) => CustomCircleAvatar(
-                  text: controller.me!.nickname,
+                  text: controller.me!.nickName,
                   avatarImageUrl: controller.me?.avatar,
                   radius: 12,
                   fontSize: 12,

@@ -17,6 +17,7 @@ class SelectData {
 class SelectPopMenu extends StatefulWidget {
   final List<SelectData> item;
   final double? width;
+  final double? height;
   final void Function(SelectData value)? onSelect;
   final dynamic initValue;
   const SelectPopMenu({
@@ -24,6 +25,7 @@ class SelectPopMenu extends StatefulWidget {
     required this.item,
     this.onSelect,
     this.width,
+    this.height,
     this.initValue,
   });
 
@@ -72,6 +74,7 @@ class _SelectPopMenuState extends State<SelectPopMenu> {
         config: CustomizeWidgetConfig(
           textMaxLenth: width - 24,
           width: width,
+          height: widget.height,
           haveBorder: true,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         ),

@@ -116,8 +116,8 @@ class HomeController extends GetxController {
   Future houseOperate(String key, HouseModel model, [dynamic data]) async {
     switch (key) {
       case HouseModel.houseOperateContact:
-        loadCommunicate(model.houseOwner.id);
-        toCommunicateView(model.houseOwner.id, Adaptive.isSmall());
+        loadCommunicate(model.houseOwner);
+        toCommunicateView(model.houseOwner, Adaptive.isSmall());
         return;
       case HouseModel.houseOperateDelete:
         houseRepo.deleteHouse(model.id);
@@ -219,7 +219,8 @@ class HomeController extends GetxController {
             userModelOne: me!,
             userModelTwo: user,
             content: '',
-            creatTime: DateTime.now(),
+            createTime: DateTime.now(),
+            isTmp: true,
           ),
         );
       }
@@ -228,26 +229,30 @@ class HomeController extends GetxController {
 
   Rx<CommunicateModel>? getCommunicate(int id) => _communicateList[id];
 
-  // setCommunicate(int id, CommunicateModel value) {
-  //   if (!_communicateList.containsKey(id)) {
-  //     _communicateList[id] = Rx<CommunicateModel>(value);
-  //   } else {
-  //     if (_communicateList[id]!.value.isEmpty) {
-  //       _communicateList[id]!.value = value;
-  //     } else {
-  //       _communicateList[id]!.value.addALL(value.items);
-  //     }
-  //   }
-  // }
-
-  loadCommunicate(int id) async {
-    if (!_communicateList.containsKey(id)) {
-      _communicateList[id] =
-          Rx<CommunicateModel>(await communicateRepo.getCommunicate(id, 0));
+  loadCommunicate(BaseUserModel to, [bool isInit = false]) async {
+    int id = to.id;
+    if (!_communicateList.containsKey(id) ||
+        _communicateList[id]!.value.isTmp) {
+      CommunicateModel? model = await communicateRepo.getCommunicate(id, 0);
+      model ??= CommunicateModel(
+        userModelOne: me!,
+        userModelTwo: to,
+        content: '',
+        createTime: DateTime.now(),
+        isEnd: true,
+      );
+      _communicateList[id] = Rx<CommunicateModel>(model);
     } else {
-      CommunicateModel model = await communicateRepo.getCommunicate(
+      if (isInit) return;
+      if (_communicateList[id]!.value.isEnd) return;
+      CommunicateModel? model = await communicateRepo.getCommunicate(
           id, _communicateList[id]!.value.pageNum);
-      _communicateList[id]!.value.addALL(model.items);
+      if (model == null) {
+        _communicateList[id]!.update((val) => val?.isEnd = true);
+        return;
+      }
+
+      _communicateList[id]!.update((val) => val?.addALL(model.items));
     }
   }
 

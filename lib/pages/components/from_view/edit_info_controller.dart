@@ -274,8 +274,16 @@ class EditInfoController {
 
   final TextEditingController _message = TextEditingController();
   TextEditingController get message => _message;
-
+  ScrollController scrollController = ScrollController();
   void clearMessage() {
     _message.clear();
+  }
+
+  void scrollToLastItem() {
+    scrollController.animateTo(
+      scrollController.position.minScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 }

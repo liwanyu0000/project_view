@@ -19,13 +19,11 @@ class CommunicateRepo {
     );
   }
 
-  Future<CommunicateModel> getCommunicate(int id, int pageNum) async {
+  Future<CommunicateModel?> getCommunicate(int id, int pageNum) async {
     return await _http.post(
       '/Communicate/getCommunicate',
       {"pageNum": pageNum, "userIdTwo": id},
-      decoder: (data) {
-        return CommunicateModel.fromJson(data);
-      },
+      decoder: (data) => data == null ? null : CommunicateModel.fromJson(data),
     );
   }
 

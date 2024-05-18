@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:project_view/pages/components/custom_circle_avatar.dart';
+import 'package:project_view/pages/components/from_view/communicate_view.dart';
+import 'package:project_view/pages/components/mouse_enter_exit.dart';
 
 import '../../utils/utils.dart';
 import '../components/from_view/login_register_view.dart';
@@ -11,20 +14,53 @@ class MessageView extends GetView<HomeController> {
   const MessageView({super.key});
 
   Widget viewBuild(BuildContext context) {
-    return Padding(
-        padding: const EdgeInsets.all(20),
-        child: Obx(
-          () => ListView.separated(
-              itemBuilder: (context, index) {
-                final item = controller.communicateList[index];
-                return SizedBox(
-                  height: 20,
-                  child: Text("${item.content}xxxx"),
-                );
+    return Obx(
+      () => ListView.separated(
+          itemBuilder: (context, index) {
+            final item = controller.communicateList[index];
+            final user = item.getUserModel(controller.me!.id);
+            return GestureDetector(
+              onTap: () {
+                controller.loadCommunicate(user);
+                toCommunicateView(user, Adaptive.isSmall(context));
               },
-              separatorBuilder: (context, index) => const Divider(),
-              itemCount: controller.communicateList.length),
-        ));
+              child: MouseEnterExit(
+                builder: (isHover) => Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: isHover
+                        ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
+                        : Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: const [
+                      BoxShadow(
+                          color: Colors.black12,
+                          offset: Offset(0, 2),
+                          blurRadius: 4),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      CustomCircleAvatar(
+                        text: user.nickName,
+                        avatarImageUrl: user.avatar,
+                        radius: iconSizeConfig.middleAvatarIconSize,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        user.nickName,
+                        style:
+                            TextStyle(fontSize: textSizeConfig.contentTextSize),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+          separatorBuilder: (context, index) => const Divider(),
+          itemCount: controller.communicateList.length),
+    );
   }
 
   @override

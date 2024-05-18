@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:project_view/pages/components/From_view.dart/change_pwd_view.dart';
-import 'package:project_view/pages/components/From_view.dart/house_info_view.dart';
+import 'package:project_view/pages/components/from_view/change_pwd_view.dart';
+import 'package:project_view/pages/components/from_view/house_info_view.dart';
 import 'package:project_view/pages/components/base_popmenu.dart';
 import 'package:project_view/pages/components/custom_circle_avatar.dart';
 import 'package:project_view/pages/components/customize_widget.dart';
-import 'package:project_view/pages/components/From_view.dart/login_register_view.dart';
+import 'package:project_view/pages/components/from_view/login_register_view.dart';
 import 'package:project_view/pages/home/components/sidebar.dart';
 import 'package:project_view/pages/message/view.dart';
 import 'package:project_view/utils/router.dart';
 
 import '../../config/constants.dart';
 import '../../services/logger.dart';
-import '../message/controller.dart';
 import '../pages.dart';
 import 'components/main_frame/main_frame.dart';
 import 'controller.dart';
@@ -78,15 +77,15 @@ class HomeView extends GetView<HomeController> {
               icon: Icons.message_outlined,
               tooltip: '消息',
               onTap: () {
-                Get.lazyPut(() => MessageController());
+                // Get.lazyPut(() => MessageController());
                 SideBar.open(context, const MessageView());
               },
             ),
           if (controller.isLogin)
             _creatActionBut(
               context,
-              icon: Icons.favorite_border,
-              tooltip: '收藏',
+              icon: Icons.article,
+              tooltip: '发布',
               onTap: () => rootRouter.toPage(Pages.favorite),
             ),
           if (!controller.isLogin)
@@ -127,13 +126,7 @@ class HomeView extends GetView<HomeController> {
           const SizedBox(width: 10),
         ],
         floatingActionButton: FloatingActionButton(
-          onPressed:
-
-              // controller.isLogin ?
-              toHouseInfo
-
-          //  : toLogin
-          ,
+          onPressed: controller.isLogin ? toHouseInfo : toLogin,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
           child: const Icon(Icons.add),
@@ -157,8 +150,8 @@ class HomeView extends GetView<HomeController> {
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.favorite_border),
-              activeIcon: Icon(Icons.favorite),
-              label: "收藏",
+              activeIcon: Icon(Icons.article),
+              label: "发布",
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_2_outlined),

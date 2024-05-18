@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'config/constants.dart';
 import 'config/themes.dart';
@@ -15,6 +16,7 @@ import 'services/translation.dart';
 import 'utils/utils.dart';
 
 Future<void> initServices() async {
+  WidgetsFlutterBinding.ensureInitialized();
   // put会产生日志，需要在put之前初始化logger，并Hook到Get.log
   final logger = LoggerService(
     prefix: kProductName,
@@ -34,6 +36,26 @@ Future<void> initServices() async {
   Get.put(HttpService(logger, baseUrl: 'https://liwanyu.top/api'));
   SmartDialog.config.attach =
       SmartConfigAttach(attachAlignmentType: SmartAttachAlignmentType.inside);
+  if (Adaptive.isDesktop) {
+    // 初始化window_manager窗口
+    await windowManager.ensureInitialized();
+    WindowOptions windowOptions = const WindowOptions(
+      title: kProductName,
+      size: defaultWindowSize,
+      center: true,
+      backgroundColor: Colors.transparent,
+      skipTaskbar: false,
+      titleBarStyle: TitleBarStyle.hidden, // 是否隐藏系统导航栏
+      windowButtonVisibility: false,
+    );
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      windowManager.setAsFrameless(); // 无边框
+      windowManager.setHasShadow(true); // 是否有阴影
+      windowManager.setMinimumSize(minWindowSize); // 最小尺寸
+      await windowManager.show();
+      await windowManager.focus();
+    });
+  }
 }
 
 void unCaughtException(Object err, StackTrace? stackTrace) {

@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
+import '../../../config/constants.dart';
 import '../../../utils/utils.dart';
 import '../../components/base_dialog.dart';
 
@@ -29,7 +29,7 @@ class SideBar {
   static void open(BuildContext context, Widget child, [Widget? title]) {
     if (isShow) return;
     final double topHeight =
-        (Adaptive.isDesktop ? appWindow.titleBarHeight : kToolbarHeight) +
+        (Adaptive.isDesktop ? titleBarHeight : kToolbarHeight) +
             1 +
             // ignore: deprecated_member_use
             MediaQueryData.fromView(window).padding.top;

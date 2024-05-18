@@ -2,15 +2,35 @@ import 'dart:convert';
 
 import 'package:project_view/model/user/user_extra_info.dart';
 
-class UserModel {
+class BaseUserModel {
   final int id;
-  final String userName;
   final String nickName;
-  final String? emails;
-  final String? phones;
   final String? addrCode;
   final String? addr;
   final String? avatar;
+  const BaseUserModel({
+    required this.id,
+    required this.nickName,
+    required this.addrCode,
+    required this.addr,
+    required this.avatar,
+  });
+
+  factory BaseUserModel.fromJson(Map<String, dynamic> json) {
+    return BaseUserModel(
+      id: json['id'],
+      nickName: json['nickName'],
+      addrCode: json['addrCode'],
+      addr: json['addr'],
+      avatar: json['avatar'],
+    );
+  }
+}
+
+class UserModel extends BaseUserModel {
+  final String userName;
+  final String? emails;
+  final String? phones;
   final String permission;
   final UserExtraInfoModel extraInfo;
   final DateTime createTime;
@@ -20,14 +40,14 @@ class UserModel {
   String? get favorite => extraInfo.favorite;
   String? get signature => extraInfo.signature;
   const UserModel({
-    required this.id,
+    required super.id,
     required this.userName,
-    required this.nickName,
+    required super.nickName,
     required this.emails,
     required this.phones,
-    required this.addrCode,
-    required this.addr,
-    required this.avatar,
+    required super.addrCode,
+    required super.addr,
+    required super.avatar,
     required this.permission,
     required this.extraInfo,
     required this.createTime,

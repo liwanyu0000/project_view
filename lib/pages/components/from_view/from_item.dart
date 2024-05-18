@@ -9,16 +9,22 @@ import '../../../utils/utils.dart';
 class FromItem extends StatelessWidget {
   final String label;
   final Widget child;
+  final List<Widget> actions;
   final bool isRight;
+  final double? width;
   const FromItem({
     super.key,
     required this.label,
     required this.child,
+    this.width,
+    this.actions = const [],
     this.isRight = true,
   });
 
   @override
   Widget build(BuildContext context) {
+    bool onRight = Adaptive.isSmall(context) && isRight;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -37,14 +43,18 @@ class FromItem extends StatelessWidget {
           ),
         ),
         SizedBox(width: Adaptive.isSmall(context) ? 10 : 20),
-        Flexible(
-          child: Align(
-            alignment: Adaptive.isSmall(context) && isRight
-                ? Alignment.centerRight
-                : Alignment.centerLeft,
-            child: child,
-          ),
-        ),
+        if (width != null && onRight) const Expanded(child: SizedBox()),
+        width == null
+            ? Flexible(
+                child: Align(
+                  alignment:
+                      onRight ? Alignment.centerRight : Alignment.centerLeft,
+                  child: child,
+                ),
+              )
+            : SizedBox(width: width, child: child),
+        ...actions,
+        if (width != null && !onRight) const Expanded(child: SizedBox()),
       ],
     );
   }

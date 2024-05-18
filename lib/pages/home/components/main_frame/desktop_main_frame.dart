@@ -1,8 +1,8 @@
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
-import 'package:project_view/pages/home/components/movable_window_area.dart';
+import 'package:window_manager/window_manager.dart';
 
-import '../window_buttons.dart';
+import '../../../../config/constants.dart';
+import 'window_buttons.dart';
 import 'main_frame.dart';
 
 /// 桌面
@@ -22,30 +22,26 @@ class DesktopMainFrame extends MainFrame {
 
   @override
   Widget build(BuildContext context) {
-    return WindowBorder(
-      color: desktopBorderColor ?? Colors.transparent,
-      width: desktopBorderWidth,
-      child: Scaffold(
+    return DragToResizeArea(
+      child:
+          // WindowBorder(
+          //   color: desktopBorderColor ?? Colors.transparent,
+          //   width: desktopBorderWidth,
+          //   child:
+          Scaffold(
         appBar: AppBar(
-          toolbarHeight: appWindow.titleBarHeight,
+          toolbarHeight: titleBarHeight,
           title: SizedBox(
-            height: appWindow.titleBarHeight,
-            child: Row(children: [
-              MovableWindowArea(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Row(
-                    children: [
-                      leading ?? const SizedBox(),
-                      title ?? const SizedBox(),
-                      const Expanded(child: SizedBox(width: 10)),
-                      ...actions,
-                    ],
-                  ),
-                ),
-              ),
-              const WindowButtons()
-            ]),
+            height: titleBarHeight,
+            child: DragToMoveArea(
+              child: Row(children: [
+                leading ?? const SizedBox(),
+                title ?? const SizedBox(),
+                const Expanded(child: SizedBox(width: 10)),
+                ...actions,
+                const WindowButtons()
+              ]),
+            ),
           ),
         ),
         body: Row(

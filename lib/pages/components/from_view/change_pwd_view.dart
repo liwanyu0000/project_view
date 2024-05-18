@@ -7,15 +7,18 @@ class _ChangePwdView extends BaseFromView {
   @override
   List<Widget> creatItems(BuildContext context, GlobalKey<FormState> formKey) {
     return [
-      creatTextField(context, 'oldPassword',
+      creatTextField(context,
+          controller: editInfoController.oldPassword,
           hintText: '旧密码',
           obscureText: true,
           validator: (value) => value!.isEmpty ? '旧密码不能为空' : null),
-      creatTextField(context, 'password',
+      creatTextField(context,
+          controller: editInfoController.password,
           hintText: '新密码',
           obscureText: true,
           validator: (value) => value!.isEmpty ? '新密码不能为空' : null),
-      creatTextField(context, 'secondPassword',
+      creatTextField(context,
+          controller: editInfoController.secondPassword,
           hintText: '确认密码',
           obscureText: true,
           validator: (value) => value!.isEmpty ? '确认密码不能为空' : null),
@@ -27,7 +30,9 @@ class _ChangePwdView extends BaseFromView {
           if (!(formKey.currentState?.validate() ?? true)) {
             throw '请检查输入';
           }
-          return await controller.changePwd();
+          bool res = await controller.changePwd();
+          editInfoController.clearPwd();
+          return res;
         }),
       ),
     ];

@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:project_view/pages/components/base_popmenu.dart';
-import 'package:project_view/pages/components/config/color_config.dart';
+import 'package:project_view/pages/components/config/config.dart';
 import 'package:project_view/pages/components/customize_widget.dart';
 import 'package:project_view/utils/adaptive.dart';
 import 'package:project_view/utils/area.dart';
@@ -11,7 +11,7 @@ import 'package:project_view/utils/area.dart';
 Widget _creatFilter(BuildContext context,
         {String? label, bool canSelect = false, double childWidth = 100}) =>
     CustomizeWidget(
-      label: label ?? '-----',
+      label: label ?? '请选择',
       onTap: canSelect ? null : () {},
       tooltip: label,
       config: CustomizeWidgetConfig(
@@ -39,16 +39,22 @@ Widget _creatPopMenu(
     PopMenu.item(
       maxHeight: maxHeight ?? 450,
       item: item
-          .map((e) => CustomizeWidget.menuItem(
-                label: e.name,
-                onTap: () => onTap?.call(e),
-                endWidget: (isHover) => isSelected?.call(e) ?? false
+          .map(
+            (e) => CustomizeWidget.menuItem(
+              label: e.name,
+              tooltip: e.name,
+              onTap: () => onTap?.call(e),
+              endWidget: (_) => SizedBox(
+                width: iconSizeConfig.secondaryIconSize,
+                child: isSelected?.call(e) ?? false
                     ? Icon(
                         Icons.check,
                         color: Theme.of(context).primaryColor,
                       )
-                    : const SizedBox(),
-              ))
+                    : null,
+              ),
+            ),
+          )
           .toList(),
       child: _creatFilter(
         context,
@@ -58,15 +64,50 @@ Widget _creatPopMenu(
       ),
     );
 
+class ProvinceFilterController {
+  RootAreaNode? area;
+  ProvinceFilterController([this.area]);
+  final Rx<ProvinceAreaNode?> _province = Rx<ProvinceAreaNode?>(null);
+
+  ProvinceFilterController setArea(RootAreaNode area) {
+    this.area = area;
+    return this;
+  }
+
+  ProvinceAreaNode? get province => _province.value;
+  set province(ProvinceAreaNode? value) => _province.value = value;
+  String get code => province?.code ?? '';
+  String? get name => province?.name;
+
+  void setFromCode(String? code) {
+    String provinceCode = AreaNode.getProvinceCode(code ?? '');
+    if (provinceCode.isNotEmpty) {
+      province = area?.findFromCode(provinceCode) as ProvinceAreaNode?;
+    }
+  }
+
+  void dispose() {
+    _province.close();
+  }
+
+  void reset() {
+    _province.value = null;
+  }
+}
+
 class ProvinceFilter extends StatefulWidget {
   final RootAreaNode area;
   final void Function(ProvinceAreaNode node)? onSelected;
+  final ProvinceFilterController? controller;
   final String? initProvice;
+  final double? childWidth;
   const ProvinceFilter({
     super.key,
     required this.area,
     this.onSelected,
+    this.controller,
     this.initProvice,
+    this.childWidth,
   });
 
   @override
@@ -74,36 +115,106 @@ class ProvinceFilter extends StatefulWidget {
 }
 
 class _ProvinceFilterState extends State<ProvinceFilter> {
-  ProvinceAreaNode? _province;
+  ProvinceFilterController? _controller;
+  ProvinceFilterController get controller =>
+      _controller ??= (widget.controller?.setArea(widget.area) ??
+          ProvinceFilterController(widget.area));
 
   @override
   void initState() {
     super.initState();
-    if (widget.initProvice != null) {
-      String provinceCode = AreaNode.getProvinceCode(widget.initProvice);
-      if (provinceCode.isNotEmpty) {
-        _province = widget.area.findFromCode(provinceCode) as ProvinceAreaNode;
-      }
-    }
+    controller.setFromCode(widget.initProvice);
   }
 
   @override
   Widget build(BuildContext context) {
-    double childWidth = min(Adaptive.getWidth(context) * .2, 160);
+    double childWidth =
+        widget.childWidth ?? min(Adaptive.getWidth(context) * .2, 160);
     double height = Adaptive.getHeight(context) * .36;
-    return _creatPopMenu(
-      context,
-      maxHeight: height,
-      item: widget.area.children,
-      onTap: (e) => setState(() {
-        _province = e as ProvinceAreaNode;
-        widget.onSelected?.call(e);
-      }),
-      isSelected: (e) => _province?.name == e.province,
-      canSelect: true,
-      node: _province,
-      childWidth: childWidth,
+    return Obx(
+      () => _creatPopMenu(
+        context,
+        maxHeight: height,
+        item: widget.area.children,
+        onTap: (e) {
+          controller.province = e as ProvinceAreaNode;
+          widget.onSelected?.call(e);
+        },
+        isSelected: (e) => controller.name == e.province,
+        canSelect: true,
+        node: controller.province,
+        childWidth: childWidth,
+      ),
     );
+  }
+}
+
+class AreaFilterController {
+  ProvinceAreaNode? province;
+  AreaFilterController([this.province]);
+  final Rx<CityAreaNode?> _city = Rx<CityAreaNode?>(null);
+  final Rx<CountyAreaNode?> _county = Rx<CountyAreaNode?>(null);
+  final Rx<StreetAreaNode?> _street = Rx<StreetAreaNode?>(null);
+
+  bool get isOneCity => province?.children.length == 1;
+
+  AreaFilterController setProvince(ProvinceAreaNode province) {
+    this.province = province;
+    reset();
+    if (isOneCity) city = province.children.first;
+    return this;
+  }
+
+  void setFromCode(String? code) {
+    if (code == null || code.isEmpty) return;
+    String cityCode = AreaNode.getCityCode(code);
+    String countyCode = AreaNode.getCountyCode(code);
+    String streetCode = AreaNode.getStreetCode(code);
+    if (cityCode.isNotEmpty) {
+      city = province?.findFromCode(cityCode) as CityAreaNode?;
+    }
+    if (countyCode.isNotEmpty) {
+      county = city?.findFromCode(countyCode) as CountyAreaNode?;
+    }
+    if (streetCode.isNotEmpty) {
+      street = county?.findFromCode(streetCode) as StreetAreaNode?;
+    }
+  }
+
+  CityAreaNode? get city => _city.value;
+  set city(CityAreaNode? value) {
+    _city.value = value;
+    _county.value = null;
+    _street.value = null;
+  }
+
+  CountyAreaNode? get county => _county.value;
+  set county(CountyAreaNode? value) {
+    _county.value = value;
+    _street.value = null;
+  }
+
+  StreetAreaNode? get street => _street.value;
+  set street(StreetAreaNode? value) => _street.value = value;
+
+  void reset() {
+    _city.value = null;
+    _county.value = null;
+    _street.value = null;
+  }
+
+  void dispose() {
+    _city.close();
+    _county.close();
+    _street.close();
+  }
+
+  String get code {
+    String? code;
+    if (city != null) code = city!.code;
+    if (county != null) code = county!.code;
+    if (street != null) code = street!.code;
+    return code ?? '';
   }
 }
 
@@ -111,98 +222,89 @@ class AreaFilter extends StatefulWidget {
   final ProvinceAreaNode province;
   final void Function(AreaNode node)? onSelected;
   final String? initNode;
-  const AreaFilter(
-      {super.key, required this.province, this.onSelected, this.initNode});
+  final double? childWidth;
+  final AreaFilterController? controller;
+  const AreaFilter({
+    super.key,
+    required this.province,
+    this.onSelected,
+    this.initNode,
+    this.childWidth,
+    this.controller,
+  });
 
   @override
   State<AreaFilter> createState() => _AreaFilterState();
 }
 
 class _AreaFilterState extends State<AreaFilter> {
-  CityAreaNode? _city;
-  CountyAreaNode? _county;
-  StreetAreaNode? _street;
-
-  bool get isOneCity => widget.province.children.length == 1;
+  AreaFilterController? _controller;
+  AreaFilterController get controller =>
+      _controller ??= (widget.controller?.setProvince(widget.province) ??
+          AreaFilterController(widget.province));
+  CityAreaNode? get _city => controller.city;
+  CountyAreaNode? get _county => controller.county;
+  StreetAreaNode? get _street => controller.street;
 
   @override
   void initState() {
     super.initState();
-    if (widget.initNode != null) {
-      String cityCode = AreaNode.getCityCode(widget.initNode);
-      String countyCode = AreaNode.getCountyCode(widget.initNode);
-      String streetCode = AreaNode.getStreetCode(widget.initNode);
-      if (cityCode.isNotEmpty) {
-        _city = widget.province.findFromCode(cityCode) as CityAreaNode?;
-      }
-      if (countyCode.isNotEmpty) {
-        _county = _city?.findFromCode(countyCode) as CountyAreaNode?;
-      }
-      if (streetCode.isNotEmpty) {
-        _street = _county?.findFromCode(streetCode) as StreetAreaNode?;
-      }
-    }
-    if (isOneCity) _city = widget.province.children.first;
+    controller.setFromCode(widget.initNode);
   }
 
   @override
   Widget build(BuildContext context) {
-    double childWidth = min(Adaptive.getWidth(context) * .2, 160);
+    double childWidth =
+        widget.childWidth ?? min(Adaptive.getWidth(context) * .2, 160);
     double height = Adaptive.getHeight(context) * .36;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        isOneCity
-            ? _creatFilter(
-                context,
-                label: _city?.name,
-                canSelect: false,
-                childWidth: childWidth * .8,
-              )
-            : _creatPopMenu(
-                context,
-                maxHeight: height,
-                item: widget.province.children,
-                onTap: (e) => setState(() {
-                  _city = e as CityAreaNode;
-                  _county = null;
-                  _street = null;
-                  widget.onSelected?.call(e);
-                }),
-                isSelected: (e) => _city?.name == e.city,
-                canSelect: true,
-                node: _city,
-                childWidth: childWidth * .8,
-              ),
-        const SizedBox(width: 10),
-        _creatPopMenu(
-          context,
-          maxHeight: height,
-          item: _city?.children ?? [],
-          onTap: (e) => setState(() {
-            _county = e as CountyAreaNode;
-            _street = null;
-            widget.onSelected?.call(e);
-          }),
-          isSelected: (e) => _county?.name == e.county,
-          canSelect: _city != null,
-          node: _county,
-          childWidth: childWidth,
+        Obx(
+          () => _creatPopMenu(
+            context,
+            maxHeight: height,
+            item: widget.province.children,
+            onTap: (e) {
+              controller.city = e as CityAreaNode;
+              widget.onSelected?.call(e);
+            },
+            isSelected: (e) => _city?.name == e.city,
+            canSelect: !controller.isOneCity,
+            node: _city,
+            childWidth: childWidth * .8,
+          ),
         ),
         const SizedBox(width: 10),
-        _creatPopMenu(
-          context,
-          maxHeight: height,
-          item: _county?.children ?? [],
-          onTap: (e) => setState(() {
-            _street = e as StreetAreaNode;
-            widget.onSelected?.call(e);
-          }),
-          isSelected: (e) => _street?.name == e.street,
-          canSelect: _county != null,
-          node: _street,
-          childWidth: childWidth * 1.2,
-        ),
+        Obx(() => _creatPopMenu(
+              context,
+              maxHeight: height,
+              item: _city?.children ?? [],
+              onTap: (e) {
+                controller.county = e as CountyAreaNode;
+                widget.onSelected?.call(e);
+              },
+              isSelected: (e) => _county?.name == e.county,
+              canSelect: _city != null,
+              node: _county,
+              childWidth: childWidth,
+            )),
+        const SizedBox(width: 10),
+        Obx(
+          () => _creatPopMenu(
+            context,
+            maxHeight: height,
+            item: _county?.children ?? [],
+            onTap: (e) {
+              controller.street = e as StreetAreaNode;
+              widget.onSelected?.call(e);
+            },
+            isSelected: (e) => _street?.name == e.street,
+            canSelect: _county != null,
+            node: _street,
+            childWidth: childWidth * 1.2,
+          ),
+        )
       ],
     );
   }

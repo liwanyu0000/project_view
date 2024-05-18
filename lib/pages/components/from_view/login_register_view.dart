@@ -9,10 +9,12 @@ class _LoginRegisterView extends BaseFromView {
 
   List<Widget> _loginItem(BuildContext context, GlobalKey<FormState> formKey) {
     return [
-      creatTextField(context, 'userName',
+      creatTextField(context,
+          controller: editInfoController.userName,
           hintText: '用户名',
           validator: (value) => value!.isEmpty ? '用户名不能为空' : null),
-      creatTextField(context, 'password',
+      creatTextField(context,
+          controller: editInfoController.password,
           hintText: '密码',
           obscureText: true,
           validator: (value) => value!.isEmpty ? '密码不能为空' : null),
@@ -26,6 +28,7 @@ class _LoginRegisterView extends BaseFromView {
               throw '请检查输入';
             }
             await controller.login();
+            editInfoController.cleanLogin();
             return controller.isLogin;
           },
         ),
@@ -41,20 +44,26 @@ class _LoginRegisterView extends BaseFromView {
   List<Widget> _registerItem(
       BuildContext context, GlobalKey<FormState> formKey) {
     return [
-      creatTextField(context, 'userName',
+      creatTextField(context,
+          controller: editInfoController.userName,
           hintText: '用户名',
           validator: (value) => value!.isEmpty ? '用户名不能为空' : null),
-      creatTextField(context, 'password',
+      creatTextField(context,
+          controller: editInfoController.password,
           hintText: '密码',
           obscureText: true,
           validator: (value) => value!.isEmpty ? '密码不能为空' : null),
-      creatTextField(context, 'secondPassword',
+      creatTextField(context,
+          controller: editInfoController.secondPassword,
           hintText: '再次确认密码',
           obscureText: true,
           validator: (value) => value!.isEmpty ? '确认密码不能为空' : null),
-      creatTextField(context, 'nickName', hintText: '昵称'),
-      creatTextField(context, 'emails', hintText: '邮箱'),
-      creatTextField(context, 'phones', hintText: '手机号'),
+      creatTextField(context,
+          controller: editInfoController.nickName, hintText: '昵称'),
+      creatTextField(context,
+          controller: editInfoController.emails, hintText: '邮箱'),
+      creatTextField(context,
+          controller: editInfoController.phones, hintText: '手机号'),
       verifyCode(context),
       creatButon(
         context,
@@ -65,6 +74,7 @@ class _LoginRegisterView extends BaseFromView {
           }
           bool success = await controller.register();
           if (!success) throw '注册失败';
+          editInfoController.cleanRegister();
           controller.setIsLoginView();
         }),
       ),

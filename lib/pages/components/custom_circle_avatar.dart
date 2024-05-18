@@ -33,7 +33,9 @@ class CustomCircleAvatar extends StatelessWidget {
     return avatarImageUrl != null
         ? CircleAvatar(
             radius: radius,
+            backgroundColor: backgroundColor ?? getAvatarColor(text),
             backgroundImage: NetworkImage(avatarImageUrl!),
+            onBackgroundImageError: (exception, stackTrace) {},
           )
         : CircleAvatar(
             radius: radius,

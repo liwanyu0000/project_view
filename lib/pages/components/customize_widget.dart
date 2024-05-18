@@ -156,7 +156,7 @@ class CustomizeWidget extends StatefulWidget {
   final Widget Function(bool isHover)? prefixWidget; //前置组件
   final Widget Function(bool isHover)? endWidget; // 尾部图标
   final dynamic Function()? onTap; // 点击事件
-  final dynamic Function(bool value)? onChanged; //复选框改变事件
+  final bool Function(bool value)? onChanged; //复选框改变事件
   final bool status; //复选框状态
   final bool isCheckBox; //此参数为true时，整个组件为复选框(只有当onChanged存在时才有效)
 
@@ -273,7 +273,7 @@ class CustomizeWidget extends StatefulWidget {
     Widget Function(bool isHover)? prefixWidget,
     Widget Function(bool isHover)? endWidget,
     dynamic Function()? onTap,
-    dynamic Function(bool value)? onChanged,
+    bool Function(bool value)? onChanged,
     bool status = false,
     bool isCheckBox = false,
     CustomizeWidgetConfig? config,
@@ -320,7 +320,7 @@ class CustomizeWidget extends StatefulWidget {
     Widget Function(bool isHover)? prefixWidget,
     Widget Function(bool isHover)? endWidget,
     dynamic Function()? onTap,
-    dynamic Function(bool value)? onChanged,
+    bool Function(bool value)? onChanged,
     bool status = false,
     bool isCheckBox = false,
     CustomizeWidgetConfig? config,
@@ -357,8 +357,9 @@ class _CustomizeWidgetState extends State<CustomizeWidget> {
         onTap: widget.isCheckBox || !_checkBoxConfig.enable
             ? null
             : () {
-                widget.onChanged!(_status);
-                setState(() => _status = !_status);
+                if (widget.onChanged!(_status)) {
+                  setState(() => _status = !_status);
+                }
               },
         child: Container(
           alignment: Alignment.center,
@@ -462,8 +463,9 @@ class _CustomizeWidgetState extends State<CustomizeWidget> {
               widget.isCheckBox &&
               _checkBoxConfig.enable
           ? () {
-              widget.onChanged!(_status);
-              setState(() => _status = !_status);
+              if (widget.onChanged!(_status)) {
+                setState(() => _status = !_status);
+              }
             }
           : widget.onTap,
       child: MouseEnterExit(
@@ -510,7 +512,10 @@ class _CustomizeWidgetState extends State<CustomizeWidget> {
                           crossAxisAlignment: widget.endCrossAxisAlignment,
                           children: [
                             _creatContent(isHover),
-                            widget.endWidget!(isHover)
+                            Padding(
+                              padding: EdgeInsets.only(left: widget.gap ?? 0),
+                              child: widget.endWidget!(isHover),
+                            )
                           ],
                         ),
                 ),

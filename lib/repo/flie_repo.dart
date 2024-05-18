@@ -14,16 +14,21 @@ class FileRepo {
     return _instance!;
   }
 
-  Future<String> uploadFile(PlatformFile file) async {
-    if (file.path == null) throw '上传失败';
-    MultipartFile multipartFile =
-        MultipartFile(File(file.path!), filename: file.name);
-    FormData data = FormData({'file': multipartFile});
-    return await _http.post(
-      '/upload/file',
-      data,
-      decoder: (data) => data,
-    );
+  Future<String> uploadFile(PlatformFile file,
+      [dynamic Function()? onError]) async {
+    try {
+      MultipartFile multipartFile =
+          MultipartFile(File(file.path!), filename: file.name);
+      FormData data = FormData({'file': multipartFile});
+      return await _http.post(
+        '/upload/file',
+        data,
+        decoder: (data) => data,
+      );
+    } catch (e) {
+      onError?.call();
+      throw '上传失败';
+    }
   }
 
   Future<List<String>> _uploadFileItem(

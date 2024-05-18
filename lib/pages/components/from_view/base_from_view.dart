@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:project_view/pages/components/from_view/edit_info_controller.dart';
 
 import '../../../utils/utils.dart';
 import '../../home/controller.dart';
@@ -15,10 +17,11 @@ import '../snackbar.dart';
 abstract class BaseFromView extends GetView<HomeController> {
   const BaseFromView({super.key});
 
+  EditInfoController get editInfoController => controller.editInfoController;
+
   Future ok(Future<bool> Function() operate) async =>
       hookExceptionWithSnackbar(() async {
         if (await operate()) {
-          controller.cleanEditInfo();
           if (Adaptive.isSmall()) {
             Get.back();
           } else {
@@ -67,10 +70,11 @@ abstract class BaseFromView extends GetView<HomeController> {
   }
 
   Widget creatTextField(
-    BuildContext context,
-    String key, {
+    BuildContext context, {
+    required TextEditingController controller,
     String? hintText,
     TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
     String? Function(String?)? validator,
     bool obscureText = false,
     int maxLines = 1,
@@ -80,12 +84,12 @@ abstract class BaseFromView extends GetView<HomeController> {
           context,
           hintText: hintText,
         ),
+        controller: controller,
         keyboardType: keyboardType,
         validator: validator,
-        initialValue: controller.getEditInfo(key),
         obscureText: obscureText,
         maxLines: maxLines,
-        onChanged: (value) => controller.setEditInfo(key, value),
+        inputFormatters: inputFormatters,
       );
 
   Widget verifyCode(BuildContext context) => Row(
@@ -93,7 +97,7 @@ abstract class BaseFromView extends GetView<HomeController> {
           Flexible(
             child: TextFormField(
               decoration: decorationConfig(context, hintText: '验证码'),
-              onChanged: (value) => controller.setEditInfo('code', value),
+              controller: editInfoController.verifyCode,
               validator: (value) => value!.isEmpty ? '验证码不能为空' : null,
             ),
           ),

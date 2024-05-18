@@ -1,10 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:project_view/model/user/user_extra_info.dart';
-import 'package:project_view/pages/components/From_view.dart/change_pwd_view.dart';
-import 'package:project_view/pages/components/From_view.dart/user_info_view.dart';
+import 'package:project_view/pages/components/from_view/change_pwd_view.dart';
+import 'package:project_view/pages/components/from_view/user_info_view.dart';
 import 'package:project_view/pages/components/config/config.dart';
 import 'package:project_view/pages/components/custom_circle_avatar.dart';
 import 'package:project_view/pages/components/mouse_enter_exit.dart';
@@ -180,44 +178,41 @@ class PersonView extends BaseView<PersonController> {
               ),
               const SizedBox(height: 20),
               // body
-              ListView(
-                shrinkWrap: true,
-                children: [
-                  _creatIteem(
-                    title: '我的发布',
-                    leading: Icons.article,
-                    onTap: () {},
-                  ),
-                  _creatIteem(
-                    title: '我的收藏',
-                    leading: Icons.favorite,
-                    onTap: () {},
-                  ),
-                  _creatIteem(
-                    title: '交易记录',
-                    leading: Icons.history,
-                    onTap: () {},
-                  ),
-                  _creatIteem(
-                    title: '修改个人信息',
-                    leading: Icons.edit,
-                    onTap: () {
-                      controller.homeController
-                          .setAllEditInfo(controller.me!.toJson());
-                      return toUserInfo(Adaptive.isSmall(context));
-                    },
-                  ),
-                  _creatIteem(
-                    title: '修改密码',
-                    leading: Icons.password,
-                    onTap: () => toChangPwd(Adaptive.isSmall(context)),
-                  ),
-                  _creatIteem(
-                    title: '退出登录',
-                    leading: Icons.logout,
-                    onTap: () => controller.homeController.logout(),
-                  ),
-                ],
+              Expanded(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    _creatIteem(
+                      title: '我的发布',
+                      leading: Icons.article,
+                      onTap: () {},
+                    ),
+                    _creatIteem(
+                      title: '交易记录',
+                      leading: Icons.history,
+                      onTap: () {},
+                    ),
+                    _creatIteem(
+                      title: '修改个人信息',
+                      leading: Icons.edit,
+                      onTap: () {
+                        controller.homeController.editInfoController
+                            .setUserInfo(controller.me);
+                        return toUserInfo(Adaptive.isSmall(context));
+                      },
+                    ),
+                    _creatIteem(
+                      title: '修改密码',
+                      leading: Icons.password,
+                      onTap: () => toChangPwd(Adaptive.isSmall(context)),
+                    ),
+                    _creatIteem(
+                      title: '退出登录',
+                      leading: Icons.logout,
+                      onTap: () => controller.homeController.logout(),
+                    ),
+                  ],
+                ),
               ),
             ],
           )),

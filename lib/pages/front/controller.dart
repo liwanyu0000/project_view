@@ -1,21 +1,32 @@
-import 'package:get/get.dart';
-import 'package:project_view/pages/base_page/base_controller.dart';
-import 'package:project_view/utils/area.dart';
+import 'package:project_view/pages/components/page_notify.dart';
 
-class FrontController extends BaseController {
-  RootAreaNode? get rootArea => homeController.area;
+import '../../model/house/house.dart';
+import '../base_page/base_house_controller.dart';
 
-  final Rx<String?> _houseTradeType = Rx(null);
-  String get houseTradeType => _houseTradeType.value ?? '';
-  set houseTradeType(String value) => _houseTradeType.value = value;
+class FrontController extends BaseHouseController {
+  @override
+  Future<List<HouseModel>> getNetData() async {
+    String state;
+    if (me?.isAdmin ?? false) {
+      state = houseStateController.firstValue;
+    } else {
+      state = HouseModel.houseStatusPublish;
+    }
+    return await houseRepo.getHouses(
+      houseTardeType: houseTradeType,
+      houseTerritory: houseTerritory,
+      houseState: state,
+      pageNum: pageNum,
+      pageSize: pageSize,
+    );
+  }
 
-  final Rx<String?> _houseTerritory = Rx(null);
-  String get houseTerritory => _houseTerritory.value ?? '';
-  set houseTerritory(String value) => _houseTerritory.value = value;
-
-  bool get infoIsEmpty => houseTradeType.isEmpty || houseTerritory.isEmpty;
-
-  final Rx<List> _houseList = Rx([]);
-  List get houseList => _houseList.value;
-  set houseList(List value) => _houseList.value = value;
+  @override
+  bool fliterMonth(HouseModel model) => fliterHouse.filter(model);
+  @override
+  notify(String key, [dynamic data]) {
+    if (key == PageNotify.login || key == PageNotify.logout) {
+      refreshData();
+    }
+  }
 }

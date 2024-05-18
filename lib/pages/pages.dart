@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:project_view/pages/message/binding.dart';
+// import 'package:project_view/pages/message/binding.dart';
 
 import 'favorite/binding.dart';
 import 'favorite/view.dart';
@@ -41,7 +41,7 @@ class Pages {
         ),
         GetPage(
           name: '/message',
-          binding: MessageBinding(),
+          // binding: MessageBinding(),
           page: () => const MessageView(),
           transition: transition,
         ),

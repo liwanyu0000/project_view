@@ -1,30 +1,41 @@
 import 'dart:async';
-import 'dart:ui';
+import 'dart:convert';
 
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:get/get.dart';
-import 'package:project_view/model/user/change_pwd_w.dart';
+import 'package:project_view/model/communicate/communicate.dart';
+import 'package:project_view/model/house/house.dart';
+import 'package:project_view/model/house/house_w.dart';
+import 'package:project_view/model/message/message.dart';
 import 'package:project_view/model/user/user_login.dart';
-import 'package:project_view/model/user/user_login_w.dart';
-import 'package:project_view/model/user/user_w.dart';
 import 'package:project_view/model/user/verify_code.dart';
-import 'package:project_view/pages/components/select_imgs.dart';
+import 'package:project_view/pages/components/from_view/filter_view.dart';
+import 'package:project_view/pages/components/from_view/house_info_view.dart';
+import 'package:project_view/pages/components/from_view/show_house_info_view.dart';
+import 'package:project_view/pages/components/from_view/communicate_view.dart';
 import 'package:project_view/pages/components/snackbar.dart';
 import 'package:project_view/pages/pages.dart';
+import 'package:project_view/repo/communicate_repo.dart';
 import 'package:project_view/repo/house_repo.dart';
+import 'package:project_view/repo/notify_repo.dart';
 import 'package:project_view/repo/user_repo.dart';
+import 'package:project_view/services/notify_channel.dart';
 import 'package:project_view/utils/area.dart';
 import 'package:project_view/utils/utils.dart';
 
-import '../../config/constants.dart';
-import '../../model/user/user_register_w.dart';
+import '../../model/notify.dart';
+import '../../model/user/user.dart';
 import '../../services/http.dart';
 import '../../services/profile.dart';
+import '../components/from_view/edit_info_controller.dart';
+import '../components/page_notify.dart';
 
 class HomeController extends GetxController {
   final UserRepo userRepo;
   final HouseRepo houseRepo;
-  HomeController(this.userRepo, this.houseRepo);
+  final NotifyRepo notifyRepo;
+  final CommunicateRepo communicateRepo;
+  HomeController(
+      this.userRepo, this.houseRepo, this.notifyRepo, this.communicateRepo);
   RxInt counter = 0.obs;
 
   final Rx<RootAreaNode?> _area = Rx(null);
@@ -41,24 +52,35 @@ class HomeController extends GetxController {
   VerifyCodeModel? get verifyCode => _verifyCode.value;
   set verifyCode(VerifyCodeModel? value) => _verifyCode.value = value;
 
+  NotifyChannel? notifyChannel;
+  final List<PageNotify> pageNotifys = [];
+  void refreshPage(String key) {
+    for (var e in pageNotifys) {
+      e.notify(key);
+    }
+  }
+
   Future refreshCode() async => hookExceptionWithSnackbar(
       () async => verifyCode = await userRepo.getCode());
+
+  final Rx<NotifyModel?> _notifyModel = Rx<NotifyModel?>(null);
+  NotifyModel? get notifyModel => _notifyModel.value;
+  set notifyModel(NotifyModel? value) => _notifyModel.value = value;
 
   // 登录or注册
   final RxBool _isLoginView = RxBool(true);
   bool get isLoginView => _isLoginView.value;
-  final Map<String, dynamic> _editInfo = {};
-  setEditInfo(String key, dynamic value) => _editInfo[key] = value;
-  getEditInfo(String key) => _editInfo[key];
-  cleanEditInfo() => _editInfo.clear();
-  setAllEditInfo(Map<String, dynamic> value) => _editInfo.addAll(value);
-  Future<bool> register() =>
-      userRepo.register(UserRegisterWriteModel.fromJson(_editInfo));
+  EditInfoController editInfoController = EditInfoController();
+  Future<bool> register() => userRepo
+      .register(editInfoController.registerInfo(verifyCode?.codeToken ?? ''));
   login() async {
-    _me.value = await userRepo.login(UserLoginWriteModel.fromJson(_editInfo));
-    cleanEditInfo();
+    _me.value = await userRepo
+        .login(editInfoController.loginInfo(verifyCode?.codeToken ?? ''));
     HttpService.to.token = me?.token;
     ProfileService.to?.write('token', me?.token);
+    subscribeRedis();
+    refreshPage(PageNotify.login);
+    _getCommunicateList();
   }
 
   setIsLoginView() {
@@ -69,48 +91,75 @@ class HomeController extends GetxController {
   logout() async {
     await userRepo.logout();
     _me.value = null;
-    rootRouter.toPage(Pages.front);
+    subscribeRedis();
+    // rootRouter.toPage(Pages.front);
     HttpService.to.token = me?.token;
     ProfileService.to?.remove('token');
+    refreshPage(PageNotify.logout);
+    _communicateList.clear();
   }
 
   // 修改密码
-  Future<bool> changePwd() async =>
-      userRepo.changePwd(ChangePwdWriteModel.fromJson(_editInfo));
+  Future<bool> changePwd() async => userRepo
+      .changePwd(editInfoController.pwdInfo(verifyCode?.codeToken ?? ''));
   Future<void> changeInfo() async {
-    if (await userRepo.changeInfo(UserWriteModle.fromJson(_editInfo))) {
-      _me.value = me?.copyWith(
-        nickName: _editInfo['nickname'],
-        phones: _editInfo['phone'],
-        emails: _editInfo['email'],
-        addrCode: _editInfo['addrCode'],
-        addr: _editInfo['addr'],
-        sex: _editInfo['sex'],
-        birthday: _editInfo['birthday'],
-        favorite: _editInfo['favorite'],
-        signature: _editInfo['signature'],
-      );
+    if (await userRepo.changeInfo(editInfoController.userInfo)) {
+      _me.value = editInfoController.copyUser(me);
+    }
+  }
+
+  final Rx<HouseModel?> _house = Rx(null);
+  HouseModel? get house => _house.value;
+  set house(HouseModel? value) => _house.value = value;
+  Timer? _tmier;
+
+  Future houseOperate(String key, HouseModel model, [dynamic data]) async {
+    switch (key) {
+      case HouseModel.houseOperateContact:
+        loadCommunicate(model.houseOwner.id);
+        toCommunicateView(model.houseOwner.id, Adaptive.isSmall());
+        return;
+      case HouseModel.houseOperateDelete:
+        houseRepo.deleteHouse(model.id);
+        return;
+      case HouseModel.houseOperateEdit:
+      case HouseModel.houseOperateNewEdit:
+        editInfoController.setHouseInfo(model);
+        toHouseInfo(Adaptive.isSmall(), key == HouseModel.houseOperateNewEdit,
+            model.id, data);
+        return;
+      case HouseModel.houseOperateRecord:
+        return;
+      case HouseModel.houseOperateDetail:
+        toShowHouse(model, Adaptive.isSmall());
+        return;
+      case HouseModel.houseOperateReview:
+        toShowHouse(model, Adaptive.isSmall(), data);
+        return;
+      default:
+        return;
     }
   }
 
   // 发布房屋信息
   Future<bool> addHouse() async {
-    final json = {
-      'houseInfo': {
-        'addrCode': _editInfo['addrCode'],
-        'addr': _editInfo['addr'],
-        'describe': _editInfo['describe'],
-      }.toString(),
-      'houseTerritory': _editInfo['houseTerritory'],
-      'houseTardeType': _editInfo['houseTardeType'],
-      'houseFile': _editInfo['houseFile'].join(','),
-      'userID': me?.id,
-    };
-    return await houseRepo.addHouse(json);
+    final HouseWriteModel model = editInfoController.houseInfo;
+    return (await houseRepo.addHouse(model)) >= 1;
   }
 
-  // 图像选择器
-  SelectImgController selectImgController = SelectImgController();
+  // 修改房屋信息
+  Future<bool> editHouse(int id) async {
+    final HouseWriteModel model = editInfoController.houseInfo;
+    return (await houseRepo.updateHouse(model, id)) >= 1;
+  }
+
+  Future<bool> reviewHouse(int id, bool pass) async {
+    return (await houseRepo.reviewHouse(id, pass)) >= 1;
+  }
+
+  // 房屋筛选器
+  final FilterController _houseFilter = FilterController();
+  FilterController get houseFilter => _houseFilter;
 
   // 移动端底部导航
   final RxInt _index = 0.obs;
@@ -123,33 +172,120 @@ class HomeController extends GetxController {
     if (page.isNotEmpty) rootRouter.toPage(page);
   }
 
-  @override
-  void onInit() {
-    super.onInit();
-    if (Adaptive.isDesktop) {
-      doWhenWindowReady(() {
-        if (appWindow.isMaximized) appWindow.restore();
-        appWindow.title = kProductName;
-        appWindow.minSize = appWindow.size = const Size(1024, 600);
-        appWindow.maxSize = const Size(3840, 2160);
-        appWindow.maximize();
-        if (!appWindow.isVisible) appWindow.show();
-      });
+  // 订阅redis
+  Future _subscribeRedis() async {
+    notifyChannel?.stop();
+    if (notifyModel != null) await notifyRepo.delete(notifyModel!.channel);
+    String? tmpChannel = ProfileService.to?.read('notify');
+    if (tmpChannel != null && tmpChannel.isNotEmpty) {
+      await notifyRepo.delete(tmpChannel);
     }
+    notifyChannel = null;
+    notifyModel = await notifyRepo.creat();
+    ProfileService.to?.write('notify', notifyModel?.channel);
+    notifyChannel = NotifyChannel(
+      host: notifyModel!.host,
+      port: notifyModel!.port ?? 6379,
+      onData: (event) {
+        if (event is List && event.length >= 3 && event[0] == 'message') {
+          MessageModel message = MessageModel.fromJson(jsonDecode(event[2]));
+          print(message);
+        }
+      },
+    );
+    notifyChannel?.start([notifyModel!.channel], notifyModel!.pwd);
+    _tmier?.cancel();
+    _tmier = Timer.periodic(
+      const Duration(minutes: 5),
+      (timer) => hookExceptionWithSnackbar(
+        () async => await notifyRepo.keep(notifyModel!.channel),
+      ),
+    );
+  }
+
+  void subscribeRedis() => hookExceptionWithSnackbar(_subscribeRedis);
+
+  // 聊天人员列表
+  final RxMap<int, Rx<CommunicateModel>> _communicateList =
+      <int, Rx<CommunicateModel>>{}.obs;
+
+  _getCommunicateList() async {
+    if (!isLogin) return;
+    List<BaseUserModel> users = await communicateRepo.getCommunicateList();
+    for (var user in users) {
+      if (!_communicateList.containsKey(user.id)) {
+        _communicateList[user.id] = Rx<CommunicateModel>(
+          CommunicateModel(
+            userModelOne: me!,
+            userModelTwo: user,
+            content: '',
+            creatTime: DateTime.now(),
+          ),
+        );
+      }
+    }
+  }
+
+  Rx<CommunicateModel>? getCommunicate(int id) => _communicateList[id];
+
+  // setCommunicate(int id, CommunicateModel value) {
+  //   if (!_communicateList.containsKey(id)) {
+  //     _communicateList[id] = Rx<CommunicateModel>(value);
+  //   } else {
+  //     if (_communicateList[id]!.value.isEmpty) {
+  //       _communicateList[id]!.value = value;
+  //     } else {
+  //       _communicateList[id]!.value.addALL(value.items);
+  //     }
+  //   }
+  // }
+
+  loadCommunicate(int id) async {
+    if (!_communicateList.containsKey(id)) {
+      _communicateList[id] =
+          Rx<CommunicateModel>(await communicateRepo.getCommunicate(id, 0));
+    } else {
+      CommunicateModel model = await communicateRepo.getCommunicate(
+          id, _communicateList[id]!.value.pageNum);
+      _communicateList[id]!.value.addALL(model.items);
+    }
+  }
+
+  List<CommunicateModel> get communicateList =>
+      _communicateList.values.map((e) => e.value).toList();
+
+  // 获取聊天记录
+
+  @override
+  Future<void> onInit() async {
+    super.onInit();
+    if (Adaptive.isDesktop) {}
+    if (Adaptive.isWeb) {}
+    if (Adaptive.isMobile) {}
     String? token = ProfileService.to?.read('token');
     if (token != null) {
       HttpService.to.token = token;
-      hookExceptionWithSnackbar(
-          () async => _me.value = await userRepo.loginByToken());
+      await hookExceptionWithSnackbar(
+        () async {
+          _me.value = await userRepo.loginByToken();
+          subscribeRedis();
+          _getCommunicateList();
+        },
+        exceptionHandle: () {
+          ProfileService.to?.remove('token');
+          HttpService.to.token = null;
+        },
+      );
     }
     AreaNode.loadFile().then((value) => _area.value = value);
+    if (me == null) subscribeRedis();
+  }
 
-    if (Adaptive.isWeb) {}
-    if (Adaptive.isMobile) {}
-    _verifyCode
-        .listen((code) => _editInfo['codeToken'] = code?.codeToken ?? '');
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      counter.value++;
-    });
+  @override
+  void onClose() {
+    notifyChannel?.stop();
+    _tmier?.cancel();
+    houseFilter.dispose();
+    super.onClose();
   }
 }

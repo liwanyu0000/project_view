@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:project_view/pages/components/From_view.dart/login_register_view.dart';
+import 'package:project_view/pages/components/from_view/login_register_view.dart';
 
 import '../../utils/utils.dart';
 import '../components/config/config.dart';

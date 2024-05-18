@@ -19,10 +19,16 @@ class PersonController extends BaseController {
       isUploading = false;
       return;
     }
-    String fileUrl = await fileRepo.uploadFile(result.files.first);
+    String fileUrl = await fileRepo.uploadFile(
+      result.files.first,
+      () => isUploading = false,
+    );
     isUploading = false;
     if (await userRepo.changeAvatar(fileUrl)) {
       homeController.me = me?.copyWith(avatar: fileUrl);
     }
   }
+
+  @override
+  notify(String key, [dynamic data]) {}
 }

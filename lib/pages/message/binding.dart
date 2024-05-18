@@ -1,10 +1,10 @@
-import 'package:get/get.dart';
+// import 'package:get/get.dart';
 
-import 'controller.dart';
+// import 'controller.dart';
 
-class MessageBinding extends Bindings {
-  @override
-  void dependencies() {
-    Get.lazyPut<MessageController>(() => MessageController());
-  }
-}
+// class MessageBinding extends Bindings {
+//   @override
+//   void dependencies() {
+//     Get.lazyPut<MessageController>(() => MessageController());
+//   }
+// }

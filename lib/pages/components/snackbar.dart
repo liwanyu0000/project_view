@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:project_view/config/constants.dart';
+import 'package:project_view/utils/utils.dart';
 
 Future<dynamic> snackbar(
   String message, {
@@ -59,7 +61,7 @@ Future<void> hookExceptionWithSnackbar(
   Widget Function(AnimationController controller, Widget child,
           AnimationParam animationParam)?
       animationBuilder,
-  Offset offset = const Offset(0, 0),
+  Offset? offset,
 }) async {
   try {
     if (fn is Future Function()) {
@@ -75,6 +77,10 @@ Future<void> hookExceptionWithSnackbar(
         alignment: alignment,
         margin: margin,
         animationBuilder: animationBuilder,
-        offset: offset);
+        offset: offset ??
+            Offset(
+              0,
+              Adaptive.isSmall() ? kBottomNavigationBarHeight : titleBarHeight,
+            ));
   }
 }

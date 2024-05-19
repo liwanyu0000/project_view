@@ -65,12 +65,12 @@ class UserLoginModel extends UserModel {
       emails: json['emails'],
       phones: json['phones'],
       addr: json['addr'],
+      addrCode: json['addrCode'],
       avatar: json['avatar'],
       permission: json['userPermission'],
       createTime: DateTime.parse(json['createTime']),
       updateTime: DateTime.parse(json['updateTime']),
       token: json['token'],
-      addrCode: json['addrCode'],
       extraInfo:
           UserExtraInfoModel.fromJson(jsonDecode(json['extraInfo'] ?? '{}')),
     );

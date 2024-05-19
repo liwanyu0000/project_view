@@ -177,7 +177,9 @@ class HomeController extends GetxController {
     notifyChannel?.stop();
     if (notifyModel != null) await notifyRepo.delete(notifyModel!.channel);
     String? tmpChannel = ProfileService.to?.read('notify');
-    if (tmpChannel != null && tmpChannel.isNotEmpty) {
+    if (tmpChannel != null &&
+        tmpChannel.isNotEmpty &&
+        tmpChannel != notifyModel?.channel) {
       await notifyRepo.delete(tmpChannel);
     }
     notifyChannel = null;
@@ -287,8 +289,9 @@ class HomeController extends GetxController {
   }
 
   @override
-  void onClose() {
+  void onClose() async {
     notifyChannel?.stop();
+    if (notifyModel != null) await notifyRepo.delete(notifyModel!.channel);
     _tmier?.cancel();
     houseFilter.dispose();
     super.onClose();

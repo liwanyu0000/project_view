@@ -6,9 +6,11 @@ import 'package:project_view/pages/components/base_popmenu.dart';
 import 'package:project_view/pages/components/custom_circle_avatar.dart';
 import 'package:project_view/pages/components/customize_widget.dart';
 import 'package:project_view/pages/components/from_view/login_register_view.dart';
+import 'package:project_view/pages/components/from_view/users_manage_view.dart';
 import 'package:project_view/pages/home/components/sidebar.dart';
 import 'package:project_view/pages/message/view.dart';
 import 'package:project_view/utils/router.dart';
+import 'package:project_view/utils/utils.dart';
 
 import '../../config/constants.dart';
 import '../../services/logger.dart';
@@ -63,7 +65,7 @@ class HomeView extends GetView<HomeController> {
             _creatActionBut(
               context,
               label: '用户管理',
-              // onTap: () => rootRouter.toPage(Pages.admin),
+              onTap: () => toUsersManageView(Adaptive.isSmall()),
             ),
           if (controller.me?.canPublish ?? false)
             _creatActionBut(

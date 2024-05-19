@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:project_view/model/house/house_w.dart';
 import 'package:project_view/model/user/change_pwd_w.dart';
+import 'package:project_view/model/user/user.dart';
 import 'package:project_view/model/user/user_login.dart';
 import 'package:project_view/model/user/user_register_w.dart';
 import 'package:project_view/model/user/user_w.dart';
@@ -285,5 +287,33 @@ class EditInfoController {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
+  }
+
+  // users manage
+  final RxList<UserModel> _users = RxList<UserModel>([]);
+  List<UserModel> get users => _users;
+  set users(List<UserModel> users) => _users.value = users;
+  final RxBool _isExpanded = false.obs;
+  bool get isExpanded => _isExpanded.value;
+  set isExpanded(bool value) => _isExpanded.value = value;
+  final RxInt _pageNum = 0.obs;
+  int get pageNum => _pageNum.value;
+  int pageSize = 15;
+  final SelectController _permission = SelectController(
+    const [
+      SelectData(label: '管理员', data: UserModel.permissionAdmin),
+      SelectData(label: '可登录', data: UserModel.permissionLogin),
+      SelectData(label: '可发布', data: UserModel.permissionPublish),
+    ],
+  );
+  SelectController get permission => _permission;
+  final TextEditingController _search = TextEditingController();
+  TextEditingController get search => _search;
+
+  void clearUsersFilter() {
+    _search.clear();
+    _province.reset();
+    _addrCode.reset();
+    _permission.clear();
   }
 }

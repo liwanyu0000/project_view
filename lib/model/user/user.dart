@@ -67,6 +67,20 @@ class UserModel extends BaseUserModel {
   static String removePermission(String value, String oldPermission) =>
       oldPermission.replaceAll(value, '');
 
+  List<String> get permissionList {
+    List<String> list = [];
+    if (isAdmin) {
+      list.add(permissionAdmin);
+    }
+    if (canLogin) {
+      list.add(permissionLogin);
+    }
+    if (canPublish) {
+      list.add(permissionPublish);
+    }
+    return list;
+  }
+
   UserModel copyWith({
     String? nickName,
     String? emails,
@@ -108,7 +122,7 @@ class UserModel extends BaseUserModel {
   bool get canLogin => permission.contains(permissionLogin);
 
   /// Check if the user has the permission to create
-  bool get canPublish => permission.contains(permissionLogin);
+  bool get canPublish => permission.contains(permissionPublish);
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
@@ -122,7 +136,7 @@ class UserModel extends BaseUserModel {
       avatar: json['avatar'],
       permission: json['userPermission'],
       extraInfo:
-          UserExtraInfoModel.fromJson(jsonDecode(json['extraInfo'] ?? '')),
+          UserExtraInfoModel.fromJson(jsonDecode(json['extraInfo'] ?? '{}')),
       createTime: DateTime.parse(json['createTime']),
       updateTime: DateTime.parse(json['updateTime']),
     );

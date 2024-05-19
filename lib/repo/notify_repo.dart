@@ -31,7 +31,7 @@ class NotifyRepo {
 
   Future<bool> delete(String channel) async {
     return await _http.delete(
-      '/notify/delete/{$channel}',
+      '/notify/delete/$channel',
       decoder: (data) => data,
     );
   }

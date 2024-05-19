@@ -118,8 +118,7 @@ class SelectPopMenu extends StatefulWidget {
     this.targetContext,
     this.canSelect = true,
     this.controller,
-  })  : assert(!(!canMultiple && initValue.length > 1)),
-        assert(item != null || controller != null);
+  }) : assert(item != null || controller != null);
 
   @override
   State<SelectPopMenu> createState() => _SelectPopMenuState();

@@ -1,4 +1,5 @@
 import 'package:project_view/model/user/change_pwd_w.dart';
+import 'package:project_view/model/user/user.dart';
 import 'package:project_view/model/user/user_login_w.dart';
 import 'package:project_view/model/user/user_register_w.dart';
 import 'package:project_view/model/user/user_w.dart';
@@ -66,6 +67,32 @@ class UserRepo {
       '/user/changeInfo',
       {'avatar': avatar},
       decoder: (data) => data,
+    );
+  }
+
+  Future<bool> changePermission(int userId, String permission) async {
+    return await _http.post(
+      '/user/changePermission',
+      {'id': userId, 'userPermission': permission},
+      decoder: (data) => data,
+    );
+  }
+
+  Future<List<UserModel>> search({
+    String? q,
+    String? userPermission,
+    String? addrCode,
+  }) async {
+    return await _http.post(
+      '/user/filterUsers',
+      {
+        'q': (q?.isEmpty ?? true) ? null : q,
+        'userPermission':
+            (userPermission?.isEmpty ?? true) ? null : userPermission,
+        'addrCode': (addrCode?.isEmpty ?? true) ? null : addrCode,
+      },
+      decoder: (data) =>
+          ((data as List?) ?? []).map((e) => UserModel.fromJson(e)).toList(),
     );
   }
 }

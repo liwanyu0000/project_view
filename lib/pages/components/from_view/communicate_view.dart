@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:project_view/model/communicate/communicate.dart';
 import 'package:project_view/model/communicate/communicate_item.dart';
@@ -77,8 +78,7 @@ class CommunicateView extends BaseFromView {
       }
     });
     return [
-      SizedBox(
-        height: Adaptive.getHeight(context) * .5,
+      Flexible(
         child: Obx(
           () => ListView.builder(
             controller: editInfoController.scrollController,
@@ -115,6 +115,13 @@ class CommunicateView extends BaseFromView {
         ],
       ),
     ];
+  }
+
+  @override
+  Widget creatFrom(BuildContext context) {
+    List<Widget> item = creatItems(context, GlobalKey<FormState>());
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween, children: item);
   }
 
   @override

@@ -52,6 +52,14 @@ class MessageView extends GetView<HomeController> {
                         style:
                             TextStyle(fontSize: textSizeConfig.contentTextSize),
                       ),
+                      const Expanded(child: SizedBox()),
+                      if (item.newItems.isNotEmpty)
+                        Text(
+                          item.newItems.length.toString(),
+                          style: TextStyle(
+                              fontSize: textSizeConfig.contentTextSize,
+                              color: labelColor(context.isDarkMode)),
+                        ),
                     ],
                   ),
                 ),

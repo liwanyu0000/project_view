@@ -191,6 +191,7 @@ class HomeController extends GetxController {
       port: notifyModel!.port ?? 6379,
       onData: (event) {
         if (event is List && event.length >= 3 && event[0] == 'message') {
+          print(event);
           MessageModel message = MessageModel.fromJson(jsonDecode(event[2]));
           switch (message.type) {
             case MessageModel.noticeHouseType:
@@ -217,6 +218,8 @@ class HomeController extends GetxController {
               }
               break;
             case MessageModel.messageType:
+              if (message.from == null) break;
+              _communicateList[message.from!.id]?.value.add(message.data);
               break;
             default:
               break;

@@ -13,6 +13,7 @@ class CommunicateModel {
   final List<CommunicateItemModel> _newItems = [];
   int get pageNum => _items.length ~/ 21 + 1;
   bool get isEmpty => _items.isEmpty && _newItems.isEmpty;
+  List<CommunicateItemModel> get newItems => _newItems;
 
   int get userIdOne => userModelOne.id;
   int get userIdTwo => userModelTwo.id;

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:project_view/model/communicate/communicate.dart';
 import 'package:project_view/model/communicate/communicate_item.dart';

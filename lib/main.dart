@@ -33,7 +33,7 @@ Future<void> initServices() async {
           ProfileService(kProductName, await getCacheDirectory()).init(),
     );
   }
-  Get.put(HttpService(logger, baseUrl: 'https://liwanyu.top/api'));
+  Get.put(HttpService(logger, baseUrl: 'http://47.109.25.126/api'));
   SmartDialog.config.attach =
       SmartConfigAttach(attachAlignmentType: SmartAttachAlignmentType.inside);
   if (Adaptive.isDesktop) {

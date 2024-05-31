@@ -14,7 +14,6 @@ class NotifyModel {
     this.data,
   });
   factory NotifyModel.fromJson(Map<String, dynamic> json) {
-    print(json);
     return NotifyModel(
       host: json['host'],
       port: json['port'],

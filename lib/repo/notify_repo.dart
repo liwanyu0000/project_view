@@ -1,5 +1,3 @@
-import 'package:project_view/model/message/message_w.dart';
-
 import '../model/notify.dart';
 import '../services/http.dart';
 
@@ -14,13 +12,13 @@ class NotifyRepo {
     );
   }
 
-  Future<bool> send(MessageWriteModel model) async {
-    return await _http.post(
-      '/notify/send',
-      model.toJson(),
-      decoder: (data) => data,
-    );
-  }
+  // Future<bool> send(MessageWriteModel model) async {
+  //   return await _http.post(
+  //     '/notify/send',
+  //     model.toJson(),
+  //     decoder: (data) => data,
+  //   );
+  // }
 
   Future<bool> keep(String channel) async {
     return await _http.get(

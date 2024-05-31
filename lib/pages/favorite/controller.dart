@@ -29,6 +29,7 @@ class FavoriteController extends BaseHouseController {
 
   @override
   notify(String key, [dynamic data]) {
+    super.notify(key, data);
     if (key == PageNotify.login) refreshData();
     if (key == PageNotify.logout) clearData();
   }

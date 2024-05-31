@@ -293,6 +293,7 @@ class EditInfoController {
   final RxList<UserModel> _users = RxList<UserModel>([]);
   List<UserModel> get users => _users;
   set users(List<UserModel> users) => _users.value = users;
+  void setOfIndex(int index, UserModel model) => _users[index] = model;
   final RxBool _isExpanded = false.obs;
   bool get isExpanded => _isExpanded.value;
   set isExpanded(bool value) => _isExpanded.value = value;

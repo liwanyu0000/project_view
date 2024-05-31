@@ -14,13 +14,15 @@ class HouseCard extends StatelessWidget {
   final AreaNode? areaNode;
   final bool isOwner;
   final bool isAdmin;
+  final bool isLogin;
   final Function(String key)? operate;
   const HouseCard({
     super.key,
     required this.model,
     required this.isOwner,
     required this.isAdmin,
-    this.areaNode,
+    required this.isLogin,
+    required this.areaNode,
     this.operate,
   });
 
@@ -78,56 +80,38 @@ class HouseCard extends StatelessWidget {
         }),
       ];
   List<Widget> _creatAction() {
+    List<Widget> items = [_actionItem(HouseModel.houseOperateDetail, '详情')];
+    if (!isLogin) return items;
+    List<Widget> extern = [];
     switch (model.houseState) {
       case HouseModel.houseStatusAudit:
-        return isOwner
+        extern = isOwner
             ? _defautAction()
-            : [
-                if (isAdmin) ...[
-                  _actionItem(HouseModel.houseOperateReview, '审核'),
-                  const SizedBox(width: 10),
-                  _actionItem(HouseModel.houseOperateDetail, '详情'),
-                ],
-              ];
+            : (isLogin
+                ? [_actionItem(HouseModel.houseOperateReview, '审核')]
+                : []);
+        break;
       case HouseModel.houseStatusPublish:
-        return isOwner
+        extern = isOwner
             ? _defautAction()
             : [
-                _actionItem(HouseModel.houseOperateDetail, '详情'),
-                const SizedBox(width: 10),
-                _actionItem(
-                  HouseModel.houseOperateContact,
-                  model.houseTardeType == HouseModel.sellHouse
-                      ? '联系卖家'
-                      : '联系房东',
-                ),
+                _actionItem(HouseModel.houseOperateContact, model.showTardetext)
               ];
+        break;
       case HouseModel.houseStatusComplete:
-        return isOwner
-            ? [
-                _actionItem(HouseModel.houseOperateDetail, '详情'),
-                const SizedBox(width: 10),
-                _actionItem(HouseModel.houseOperateRecord, '交易记录'),
-              ]
-            : [
-                _actionItem(HouseModel.houseOperateDetail, '详情'),
-              ];
+        extern =
+            isOwner ? [_actionItem(HouseModel.houseOperateRecord, '交易记录')] : [];
+        break;
       case HouseModel.houseStatusOff:
       case HouseModel.houseStatusNotPass:
-        return isOwner
-            ? [
-                _actionItem(HouseModel.houseOperateDetail, '详情'),
-                const SizedBox(width: 10),
-                _actionItem(HouseModel.houseOperateNewEdit, '编辑'),
-              ]
-            : [
-                _actionItem(HouseModel.houseOperateDetail, '详情'),
-              ];
+        extern =
+            isOwner ? [_actionItem(HouseModel.houseOperateNewEdit, '编辑')] : [];
+        break;
       default:
-        return [
-          _actionItem(HouseModel.houseOperateDetail, '详情'),
-        ];
+        extern = [];
     }
+    if (extern.isEmpty) return items;
+    return [...items, const SizedBox(width: 10), ...extern];
   }
 
   @override

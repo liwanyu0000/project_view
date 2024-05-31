@@ -54,9 +54,9 @@ class HomeController extends GetxController {
 
   NotifyChannel? notifyChannel;
   final List<PageNotify> pageNotifys = [];
-  void refreshPage(String key) {
+  void refreshPage(String key, [dynamic data]) {
     for (var e in pageNotifys) {
-      e.notify(key);
+      e.notify(key, data);
     }
   }
 
@@ -143,6 +143,7 @@ class HomeController extends GetxController {
 
   // 发布房屋信息
   Future<bool> addHouse() async {
+    if (!(me?.canPublish ?? false)) throw '当前账户无法发布房屋信息！！！';
     final HouseWriteModel model = editInfoController.houseInfo;
     return (await houseRepo.addHouse(model)) >= 1;
   }
@@ -191,7 +192,35 @@ class HomeController extends GetxController {
       onData: (event) {
         if (event is List && event.length >= 3 && event[0] == 'message') {
           MessageModel message = MessageModel.fromJson(jsonDecode(event[2]));
-          print(message);
+          switch (message.type) {
+            case MessageModel.noticeHouseType:
+              refreshPage(PageNotify.houses, message);
+              break;
+            case MessageModel.noticeUserType:
+              if (me?.id == message.data.id) {
+                if (!(message.data as UserModel).canLogin) {
+                  hookExceptionWithSnackbar(() {
+                    logout();
+                    throw '当前账户已被管理员禁止登录！！！';
+                  });
+                }
+                _me.value = me?.copyWithModel(message.data);
+                refreshPage(PageNotify.permission, message);
+              }
+              if (me?.isAdmin ?? false) {
+                for (int i = 0; i < editInfoController.users.length; i++) {
+                  if (editInfoController.users[i].id == message.data.id) {
+                    editInfoController.setOfIndex(index, message.data);
+                    break;
+                  }
+                }
+              }
+              break;
+            case MessageModel.messageType:
+              break;
+            default:
+              break;
+          }
         }
       },
     );

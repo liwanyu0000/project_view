@@ -7,6 +7,7 @@ import 'package:project_view/pages/components/custom_circle_avatar.dart';
 import 'package:project_view/pages/components/customize_widget.dart';
 import 'package:project_view/pages/components/from_view/login_register_view.dart';
 import 'package:project_view/pages/components/from_view/users_manage_view.dart';
+import 'package:project_view/pages/components/snackbar.dart';
 import 'package:project_view/pages/home/components/sidebar.dart';
 import 'package:project_view/pages/message/view.dart';
 import 'package:project_view/utils/router.dart';
@@ -128,7 +129,17 @@ class HomeView extends GetView<HomeController> {
           const SizedBox(width: 10),
         ],
         floatingActionButton: FloatingActionButton(
-          onPressed: controller.isLogin ? toHouseInfo : toLogin,
+          onPressed: () {
+            if (!controller.isLogin) {
+              toLogin(true);
+            } else {
+              if (controller.me?.canPublish ?? false) {
+                toHouseInfo(true);
+              } else {
+                snackbar('您没有发布权限');
+              }
+            }
+          },
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
           child: const Icon(Icons.add),

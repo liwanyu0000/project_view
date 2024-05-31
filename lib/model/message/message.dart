@@ -1,26 +1,37 @@
+import 'package:project_view/model/message/h_message.dart';
+import 'package:project_view/model/message/m_message.dart';
+import 'package:project_view/model/message/u_message.dart';
 import 'package:project_view/model/user/user.dart';
 
 class MessageModel {
-  final String message;
   final String type;
+  final DateTime time;
+  final dynamic data;
   final BaseUserModel? from;
   final int? to;
-  final DateTime time;
   const MessageModel({
-    required this.message,
     required this.type,
+    required this.data,
+    required this.time,
     this.from,
     this.to,
-    required this.time,
   });
 
+  static const String messageType = "MESSAGE";
+  static const String noticeHouseType = "NOTICE_HOUSE";
+  static const String noticeUserType = "NOTICE_USER";
+
   factory MessageModel.fromJson(Map<String, dynamic> json) {
-    return MessageModel(
-      message: json['message'],
-      type: json['type'],
-      from: json['from'] != null ? BaseUserModel.fromJson(json['from']) : null,
-      to: json['to'],
-      time: DateTime.parse(json['time']),
-    );
+    String type = json['type'];
+    switch (type) {
+      case messageType:
+        return MMessageMessage.fromJson(json);
+      case noticeHouseType:
+        return HMessageMessage.fromJson(json);
+      case noticeUserType:
+        return UMessageMessage.fromJson(json);
+      default:
+        throw 'no type found in json';
+    }
   }
 }

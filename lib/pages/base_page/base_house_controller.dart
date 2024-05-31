@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:project_view/pages/components/page_notify.dart';
 
 import '../../model/house/house.dart';
 import '../../repo/house_repo.dart';
@@ -80,15 +81,10 @@ abstract class BaseHouseController extends BaseController {
       if (isEnd || isLoad) return;
       isLoad = true;
       List<HouseModel> item = await getNetData();
+      isLoad = false;
       pageNum++;
       _houseModels.addAll(item);
-      for (int i = 0; i < item.length; i++) {
-        if (fliterMonth(houseModels[i])) {
-          showModels.add(i + (pageNum - 1) * pageSize);
-        }
-      }
       if (item.length < pageSize) isEnd = true;
-      isLoad = false;
     }, exceptionHandle: () => isLoad = false);
   }
 
@@ -110,8 +106,7 @@ abstract class BaseHouseController extends BaseController {
     isLoad = true;
     pageNum = 0;
     isEnd = false;
-    houseModels.clear();
-    showModels.clear();
+    _houseModels.clear();
     isLoad = false;
     await getData();
   }
@@ -143,6 +138,30 @@ abstract class BaseHouseController extends BaseController {
     if (key == HouseModel.houseOperateDelete) {
       houseModels[index] =
           houseModels[index].copyWith(houseState: HouseModel.houseStatusOff);
+    }
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    _houseModels.listen((data) async {
+      data.isEmpty ? showModels.clear() : filterData();
+    });
+  }
+
+  @override
+  void notify(String key, [dynamic data]) {
+    if (key == PageNotify.permission) {
+      houseStateController.reset();
+      refreshData();
+    }
+    if (key == PageNotify.houses) {
+      for (int i = 0; i < houseModels.length; i++) {
+        if (houseModels[i].id == data.data.id) {
+          _houseModels[i] = data.data;
+          break;
+        }
+      }
     }
   }
 }

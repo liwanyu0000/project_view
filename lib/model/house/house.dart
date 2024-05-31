@@ -107,6 +107,8 @@ class HouseModel {
   /// 更新时间
   final DateTime updateTime;
 
+  String get showTardetext => houseTardeType == sellHouse ? '联系卖家' : '联系房东';
+
   List<String> get houseFileList => houseFile
       .split(RegExp('[ ]*,[ ]*'))
       .where((element) => element.isNotEmpty)

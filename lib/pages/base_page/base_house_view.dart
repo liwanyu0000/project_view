@@ -126,10 +126,13 @@ abstract class BaseHouseView<T extends BaseHouseController> extends GetView<T> {
                 (index) {
                   final e = controller.houseModels[index];
                   return HouseCard(
-                      model: e,
-                      isOwner: controller.me?.id == e.houseOwner.id,
-                      isAdmin: controller.me?.isAdmin ?? false,
-                      operate: (key) => controller.houseOperate(key, index));
+                    model: e,
+                    isOwner: controller.me?.id == e.houseOwner.id,
+                    isAdmin: controller.me?.isAdmin ?? false,
+                    isLogin: controller.isLogin,
+                    operate: (key) => controller.houseOperate(key, index),
+                    areaNode: controller.homeController.area,
+                  );
                 },
               ),
               if (controller.isLoad) const CustomLoading(text: '加载中...'),

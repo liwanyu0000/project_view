@@ -238,7 +238,7 @@ class _HouseInfoView extends BaseFromView {
                       }
                     }
                     onDone?.call();
-                    editInfoController.clearHouseInfo();
+                    // editInfoController.clearHouseInfo();
                     return res;
                   }),
                 ),

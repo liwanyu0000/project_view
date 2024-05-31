@@ -57,6 +57,24 @@ class UserLoginModel extends UserModel {
     );
   }
 
+  UserLoginModel copyWithModel(UserModel model) {
+    return UserLoginModel(
+      id: id,
+      userName: model.userName,
+      nickName: model.nickName,
+      emails: model.emails,
+      phones: model.phones,
+      addr: model.addr,
+      avatar: model.avatar,
+      permission: model.permission,
+      createTime: model.createTime,
+      updateTime: model.updateTime,
+      addrCode: model.addrCode,
+      extraInfo: model.extraInfo,
+      token: token,
+    );
+  }
+
   factory UserLoginModel.fromJson(Map<String, dynamic> json) {
     return UserLoginModel(
       id: json['id'],

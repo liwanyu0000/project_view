@@ -9,13 +9,18 @@ import 'config/config.dart';
 class SelectController {
   final List<SelectData> item;
   SelectController(this.item) {
-    for (var e in item) {
-      if (e.isDefault) selectList.add(e);
-    }
+    reset();
   }
   final RxList<SelectData> selectList = <SelectData>[].obs;
   void add(SelectData value) {
     selectList.add(value);
+  }
+
+  void reset() {
+    selectList.clear();
+    for (var e in item) {
+      if (e.isDefault) selectList.add(e);
+    }
   }
 
   void remove(SelectData value) {

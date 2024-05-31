@@ -25,6 +25,7 @@ class FrontController extends BaseHouseController {
   bool fliterMonth(HouseModel model) => fliterHouse.filter(model);
   @override
   notify(String key, [dynamic data]) {
+    super.notify(key, data);
     if (key == PageNotify.login || key == PageNotify.logout) {
       refreshData();
     }

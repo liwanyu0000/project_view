@@ -61,6 +61,9 @@ class HouseModel {
   /// 联系
   static const String houseOperateContact = "contact";
 
+  /// 发起交易
+  static const String houseOperateTrade = "trade";
+
   /// 记录
   static const String houseOperateRecord = "record";
 

@@ -6,6 +6,7 @@ import 'package:project_view/model/house/house.dart';
 import 'package:project_view/pages/components/config/config.dart';
 import 'package:project_view/pages/components/custom_circle_avatar.dart';
 import 'package:project_view/pages/components/custom_tool_tip.dart';
+import 'package:project_view/pages/components/customize_widget.dart';
 import 'package:project_view/utils/area.dart';
 import 'package:project_view/utils/utils.dart';
 
@@ -57,9 +58,15 @@ class HouseCard extends StatelessWidget {
       );
   Widget _actionItem(String key, String label, [void Function()? onPressed]) =>
       Expanded(
-        child: ElevatedButton(
-          onPressed: onPressed ?? () => operate?.call(key),
-          child: Text(label),
+        child: CustomizeWidget(
+          onTap: onPressed ?? () => operate?.call(key),
+          label: label,
+          config: CustomizeWidgetConfig(
+            primaryColor: Colors.blue,
+            haveBorder: true,
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
+            borderRadius: BorderRadius.circular(50),
+          ),
         ),
       );
 
@@ -95,6 +102,8 @@ class HouseCard extends StatelessWidget {
         extern = isOwner
             ? _defautAction()
             : [
+                _actionItem(HouseModel.houseOperateTrade, '发起交易'),
+                const SizedBox(width: 10),
                 _actionItem(HouseModel.houseOperateContact, model.showTardetext)
               ];
         break;

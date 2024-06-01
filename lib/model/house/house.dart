@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:project_view/model/house/house_info.dart';
+import 'package:project_view/model/trade/trade_w.dart';
 import 'package:project_view/model/user/user.dart';
 
 class StatusModel {
@@ -220,6 +221,15 @@ class HouseModel {
       houseOwner: houseOwner ?? this.houseOwner,
       createTime: createTime ?? this.createTime,
       updateTime: updateTime ?? this.updateTime,
+    );
+  }
+
+  TradeWriteModel toTradeWriteModel(int userId) {
+    return TradeWriteModel(
+      sellerId: houseOwner.id,
+      buyerId: userId,
+      houseId: id,
+      tradeType: houseTardeType,
     );
   }
 }

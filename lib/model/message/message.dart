@@ -20,6 +20,7 @@ class MessageModel {
   static const String messageType = "MESSAGE";
   static const String noticeHouseType = "NOTICE_HOUSE";
   static const String noticeUserType = "NOTICE_USER";
+  static const String noticeTradeType = "NOTICE_TRADE";
 
   factory MessageModel.fromJson(Map<String, dynamic> json) {
     String type = json['type'];
@@ -30,6 +31,7 @@ class MessageModel {
         return HMessageMessage.fromJson(json);
       case noticeUserType:
         return UMessageMessage.fromJson(json);
+
       default:
         throw 'no type found in json';
     }

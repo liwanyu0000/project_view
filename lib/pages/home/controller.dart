@@ -6,6 +6,7 @@ import 'package:project_view/model/communicate/communicate.dart';
 import 'package:project_view/model/house/house.dart';
 import 'package:project_view/model/house/house_w.dart';
 import 'package:project_view/model/message/message.dart';
+import 'package:project_view/model/trade/trade.dart';
 import 'package:project_view/model/user/user_login.dart';
 import 'package:project_view/model/user/verify_code.dart';
 import 'package:project_view/pages/components/from_view/filter_view.dart';
@@ -17,12 +18,14 @@ import 'package:project_view/pages/pages.dart';
 import 'package:project_view/repo/communicate_repo.dart';
 import 'package:project_view/repo/house_repo.dart';
 import 'package:project_view/repo/notify_repo.dart';
+import 'package:project_view/repo/trade_repo.dart';
 import 'package:project_view/repo/user_repo.dart';
 import 'package:project_view/services/notify_channel.dart';
 import 'package:project_view/utils/area.dart';
 import 'package:project_view/utils/utils.dart';
 
 import '../../model/notify.dart';
+import '../../model/trade/trade_w.dart';
 import '../../model/user/user.dart';
 import '../../services/http.dart';
 import '../../services/profile.dart';
@@ -33,9 +36,15 @@ class HomeController extends GetxController {
   final UserRepo userRepo;
   final HouseRepo houseRepo;
   final NotifyRepo notifyRepo;
+  final TradeRepo tradeRepo;
   final CommunicateRepo communicateRepo;
   HomeController(
-      this.userRepo, this.houseRepo, this.notifyRepo, this.communicateRepo);
+    this.userRepo,
+    this.houseRepo,
+    this.notifyRepo,
+    this.communicateRepo,
+    this.tradeRepo,
+  );
   RxInt counter = 0.obs;
 
   final Rx<RootAreaNode?> _area = Rx(null);
@@ -143,9 +152,31 @@ class HomeController extends GetxController {
       case HouseModel.houseOperateReview:
         toShowHouse(model, Adaptive.isSmall(), data);
         return;
+      case HouseModel.houseOperateTrade:
+        for (var trade in tradeList) {
+          if (trade.houseId == model.id) {
+            hookExceptionWithSnackbar(() => throw '已经发起交易');
+          }
+        }
+        TradeWriteModel tradeWriteModel = TradeWriteModel(
+          houseId: model.id,
+          buyerId: me!.id,
+          sellerId: model.houseOwner.id,
+          tradeType: model.houseTardeType,
+        );
+        await tradeRepo.insertTrade(tradeWriteModel);
+        return;
       default:
         return;
     }
+  }
+
+  final RxList<TradeModel> _tradeList = <TradeModel>[].obs;
+  List<TradeModel> get tradeList => _tradeList;
+  Future<void> getTradeList() async {
+    _tradeList.clear();
+    List<TradeModel> list = await tradeRepo.selectTrade();
+    _tradeList.addAll(list);
   }
 
   // 发布房屋信息
@@ -239,6 +270,15 @@ class HomeController extends GetxController {
               _communicateList[message.from!.id]?.update((val) {
                 val?.add(message.data);
               });
+              break;
+            case MessageModel.noticeTradeType:
+              for (int i = 0; i < tradeList.length; i++) {
+                if (_tradeList[i].id == message.data.id) {
+                  _tradeList[i] = message.data;
+                  break;
+                }
+              }
+              _tradeList.add(message.data);
               break;
             default:
               break;
@@ -339,6 +379,7 @@ class HomeController extends GetxController {
         },
       );
     }
+    getTradeList();
     _communicateList.listen((p0) => getCommunicateList());
     AreaNode.loadFile().then((value) => _area.value = value);
     if (me == null) subscribeRedis();

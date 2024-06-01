@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:project_view/model/user/user_extra_info.dart';
 import 'package:project_view/pages/components/from_view/change_pwd_view.dart';
+import 'package:project_view/pages/components/from_view/trade_view.dart';
 import 'package:project_view/pages/components/from_view/user_info_view.dart';
 import 'package:project_view/pages/components/config/config.dart';
 import 'package:project_view/pages/components/custom_circle_avatar.dart';
@@ -12,6 +13,7 @@ import 'package:project_view/utils/utils.dart';
 import '../../utils/area.dart';
 import '../base_page/base_view.dart';
 import '../components/custom_loading.dart';
+import '../pages.dart';
 import 'controller.dart';
 
 class PersonView extends BaseView<PersonController> {
@@ -185,12 +187,12 @@ class PersonView extends BaseView<PersonController> {
                     _creatIteem(
                       title: '我的发布',
                       leading: Icons.article,
-                      onTap: () {},
+                      onTap: () => rootRouter.toPage(Pages.favorite),
                     ),
                     _creatIteem(
-                      title: '交易记录',
+                      title: '交易管理',
                       leading: Icons.history,
-                      onTap: () {},
+                      onTap: () => toTradeView(Adaptive.isSmall(context)),
                     ),
                     _creatIteem(
                       title: '修改个人信息',

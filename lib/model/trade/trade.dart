@@ -29,6 +29,12 @@ class TradeModel {
     required this.finishAt,
   });
 
+  String setState(String status) {
+    this.status = status;
+    finishAt = DateTime.now();
+    return info;
+  }
+
   String get info => jsonEncode({
         'tradeType': tradeType,
         'status': status,
@@ -45,7 +51,7 @@ class TradeModel {
       houseId: json['houseId'],
       tradeType: info['tradeType'],
       status: info['status'],
-      createdAt: DateTime.parse(json['createdTime']),
+      createdAt: DateTime.parse(json['createTime']),
       finishAt: toDateTime(info['finishAt']),
     );
   }

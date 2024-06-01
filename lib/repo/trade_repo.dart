@@ -17,7 +17,7 @@ class TradeRepo {
 
   Future<int> updateTrade(int id, String info) async {
     return await _http.post(
-      'Trade/updateTrade',
+      '/Trade/updateTrade',
       {'id': id, 'info': info},
       decoder: (data) => data,
     );

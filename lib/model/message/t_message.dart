@@ -6,7 +6,7 @@ class TMessage extends MessageModel {
   TMessage({
     required super.time,
     required TradeModel super.data,
-  }) : super(type: MessageModel.noticeHouseType);
+  }) : super(type: MessageModel.noticeTradeType);
 
   @override
   TradeModel get data => super.data;

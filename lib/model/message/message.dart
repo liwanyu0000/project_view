@@ -1,5 +1,6 @@
 import 'package:project_view/model/message/h_message.dart';
 import 'package:project_view/model/message/m_message.dart';
+import 'package:project_view/model/message/t_message.dart';
 import 'package:project_view/model/message/u_message.dart';
 import 'package:project_view/model/user/user.dart';
 
@@ -31,7 +32,8 @@ class MessageModel {
         return HMessageMessage.fromJson(json);
       case noticeUserType:
         return UMessageMessage.fromJson(json);
-
+      case noticeTradeType:
+        return TMessage.fromJson(json);
       default:
         throw 'no type found in json';
     }

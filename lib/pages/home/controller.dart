@@ -90,6 +90,7 @@ class HomeController extends GetxController {
     subscribeRedis();
     refreshPage(PageNotify.login);
     _getCommunicateList();
+    getTradeList();
   }
 
   setIsLoginView() {
@@ -154,8 +155,11 @@ class HomeController extends GetxController {
         return;
       case HouseModel.houseOperateTrade:
         for (var trade in tradeList) {
-          if (trade.houseId == model.id) {
+          if (trade.houseId == model.id &&
+              (trade.status != TradeModel.tradeStatusCancel ||
+                  trade.status != TradeModel.tradeStatusPass)) {
             hookExceptionWithSnackbar(() => throw '已经发起交易');
+            return;
           }
         }
         TradeWriteModel tradeWriteModel = TradeWriteModel(
@@ -372,6 +376,7 @@ class HomeController extends GetxController {
           _me.value = await userRepo.loginByToken();
           subscribeRedis();
           _getCommunicateList();
+          getTradeList();
         },
         exceptionHandle: () {
           ProfileService.to?.remove('token');
@@ -379,7 +384,6 @@ class HomeController extends GetxController {
         },
       );
     }
-    getTradeList();
     _communicateList.listen((p0) => getCommunicateList());
     AreaNode.loadFile().then((value) => _area.value = value);
     if (me == null) subscribeRedis();

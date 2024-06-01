@@ -18,11 +18,14 @@ class MessageView extends GetView<HomeController> {
       () => ListView.separated(
           itemBuilder: (context, index) {
             final item = controller.communicateList[index];
-            final user = item.getUserModel(controller.me!.id);
+            final user = item.value.getUserModel(controller.me!.id);
             return GestureDetector(
               onTap: () {
                 controller.loadCommunicate(user);
-                toCommunicateView(user, Adaptive.isSmall(context));
+                toCommunicateView(user, Adaptive.isSmall(context), () {
+                  controller.communicateList[index]
+                      .update((val) => val?.onRead());
+                });
               },
               child: MouseEnterExit(
                 builder: (isHover) => Container(
@@ -39,28 +42,30 @@ class MessageView extends GetView<HomeController> {
                           blurRadius: 4),
                     ],
                   ),
-                  child: Row(
-                    children: [
-                      CustomCircleAvatar(
-                        text: user.nickName,
-                        avatarImageUrl: user.avatar,
-                        radius: iconSizeConfig.middleAvatarIconSize,
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        user.nickName,
-                        style:
-                            TextStyle(fontSize: textSizeConfig.contentTextSize),
-                      ),
-                      const Expanded(child: SizedBox()),
-                      if (item.newItems.isNotEmpty)
-                        Text(
-                          item.newItems.length.toString(),
-                          style: TextStyle(
-                              fontSize: textSizeConfig.contentTextSize,
-                              color: labelColor(context.isDarkMode)),
+                  child: Obx(
+                    () => Row(
+                      children: [
+                        CustomCircleAvatar(
+                          text: user.nickName,
+                          avatarImageUrl: user.avatar,
+                          radius: iconSizeConfig.middleAvatarIconSize,
                         ),
-                    ],
+                        const SizedBox(width: 10),
+                        Text(
+                          user.nickName,
+                          style: TextStyle(
+                              fontSize: textSizeConfig.contentTextSize),
+                        ),
+                        const Expanded(child: SizedBox()),
+                        if (item.value.newItems.isNotEmpty)
+                          Text(
+                            item.value.newItems.length.toString(),
+                            style: TextStyle(
+                                fontSize: textSizeConfig.contentTextSize,
+                                color: errorMarkColor(context.isDarkMode)),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),

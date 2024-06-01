@@ -130,6 +130,6 @@ class CommunicateView extends BaseFromView {
 }
 
 Future<dynamic> toCommunicateView(BaseUserModel model,
-        [bool isPage = true]) async =>
-    toFrom(
-        CommunicateView(model: model), '聊天', isPage, Adaptive.getWidth() * .6);
+        [bool isPage = true, dynamic Function()? onClose]) async =>
+    toFrom(CommunicateView(model: model), '聊天', isPage,
+        Adaptive.getWidth() * .6, onClose);

@@ -22,7 +22,6 @@ class NotifyChannel {
 
   void _onError(
       Object error, List<String> channels, String? pwd, int count) async {
-    print(error);
     if (_command == null) return;
     if (canErrReconnection) {
       _command?.get_connection().close();

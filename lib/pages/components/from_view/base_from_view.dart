@@ -149,15 +149,20 @@ Future<dynamic> toFrom(
   String title, [
   bool isPage = true,
   double? width,
+  dynamic Function()? onClose,
 ]) async =>
     isPage
         ? await Get.to(() => BasePage(
               title: title,
               child: child,
-            ))
+            ))?.then((value) => onClose?.call())
         : await showSmartDialog(
             child: child,
             keepSingle: false,
             width: width,
             dialogTag: "FromView",
+            onDismiss: () {
+              print(' ----close ------------ ');
+              onClose?.call();
+            },
           );

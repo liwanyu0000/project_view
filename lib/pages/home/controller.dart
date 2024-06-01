@@ -116,8 +116,15 @@ class HomeController extends GetxController {
   Future houseOperate(String key, HouseModel model, [dynamic data]) async {
     switch (key) {
       case HouseModel.houseOperateContact:
-        loadCommunicate(model.houseOwner);
-        toCommunicateView(model.houseOwner, Adaptive.isSmall());
+        await loadCommunicate(model.houseOwner);
+        toCommunicateView(model.houseOwner, Adaptive.isSmall(), () {
+          for (var element in communicateList) {
+            if (element.value.getUserModel(me!.id).id == model.houseOwner.id) {
+              element.update((val) => val?.onRead());
+              break;
+            }
+          }
+        });
         return;
       case HouseModel.houseOperateDelete:
         houseRepo.deleteHouse(model.id);
@@ -191,7 +198,6 @@ class HomeController extends GetxController {
       port: notifyModel!.port ?? 6379,
       onData: (event) {
         if (event is List && event.length >= 3 && event[0] == 'message') {
-          print(event);
           MessageModel message = MessageModel.fromJson(jsonDecode(event[2]));
           switch (message.type) {
             case MessageModel.noticeHouseType:
@@ -219,7 +225,20 @@ class HomeController extends GetxController {
               break;
             case MessageModel.messageType:
               if (message.from == null) break;
-              _communicateList[message.from!.id]?.value.add(message.data);
+              if (_communicateList[message.from!.id] == null) {
+                _communicateList[message.from!.id] = Rx<CommunicateModel>(
+                  CommunicateModel(
+                    userModelOne: me!,
+                    userModelTwo: message.from!,
+                    content: '',
+                    createTime: DateTime.now(),
+                    isTmp: true,
+                  ),
+                );
+              }
+              _communicateList[message.from!.id]?.update((val) {
+                val?.add(message.data);
+              });
               break;
             default:
               break;
@@ -290,8 +309,12 @@ class HomeController extends GetxController {
     }
   }
 
-  List<CommunicateModel> get communicateList =>
-      _communicateList.values.map((e) => e.value).toList();
+  final RxList<Rx<CommunicateModel>> communicateList = RxList();
+
+  void getCommunicateList() {
+    communicateList.clear();
+    communicateList.addAll(_communicateList.values.toList());
+  }
 
   // 获取聊天记录
 
@@ -316,6 +339,7 @@ class HomeController extends GetxController {
         },
       );
     }
+    _communicateList.listen((p0) => getCommunicateList());
     AreaNode.loadFile().then((value) => _area.value = value);
     if (me == null) subscribeRedis();
   }

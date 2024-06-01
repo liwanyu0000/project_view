@@ -27,6 +27,11 @@ class CommunicateModel {
 
   List<CommunicateItemModel> get items => [..._newItems, ..._items];
 
+  void onRead() {
+    _items.insertAll(0, _newItems);
+    _newItems.clear();
+  }
+
   int getUserId(int myid) =>
       userModelOne.id == myid ? userModelTwo.id : userModelOne.id;
 

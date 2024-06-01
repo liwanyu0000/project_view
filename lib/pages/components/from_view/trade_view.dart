@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:project_view/model/house/house.dart';
+import 'package:project_view/pages/components/from_view/show_house_info_view.dart';
 import '../../../model/trade/trade.dart';
 import '../../../utils/utils.dart';
 import '../config/size_config.dart';
@@ -63,6 +64,7 @@ class TradeView extends BaseFromView {
                           onPressed: () async {
                             HouseModel model =
                                 await controller.houseRepo.getHouse(e.houseId);
+                            toShowHouse(model, Adaptive.isSmall());
                           },
                           child: const Text('房屋详情'),
                         ),
@@ -71,8 +73,10 @@ class TradeView extends BaseFromView {
                             e.seller.id == controller.me?.id) ...[
                           ElevatedButton(
                             onPressed: () {
-                              controller.tradeRepo.updateTrade(e.id,
-                                  e.setState(TradeModel.tradeStatusFinish));
+                              controller.tradeRepo.updateTrade(
+                                  e.id,
+                                  e.setState(TradeModel.tradeStatusFinish),
+                                  true);
                             },
                             child: const Text('完成'),
                           ),

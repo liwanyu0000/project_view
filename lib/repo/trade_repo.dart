@@ -15,10 +15,10 @@ class TradeRepo {
     );
   }
 
-  Future<int> updateTrade(int id, String info) async {
+  Future<int> updateTrade(int id, String info, [bool isTraden = false]) async {
     return await _http.post(
       '/Trade/updateTrade',
-      {'id': id, 'info': info},
+      {'id': id, 'info': info, 'isTrade': isTraden},
       decoder: (data) => data,
     );
   }

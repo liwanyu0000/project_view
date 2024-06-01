@@ -156,12 +156,15 @@ abstract class BaseHouseController extends BaseController {
       refreshData();
     }
     if (key == PageNotify.houses) {
+      bool flag = true;
       for (int i = 0; i < houseModels.length; i++) {
         if (houseModels[i].id == data.data.id) {
           _houseModels[i] = data.data;
+          flag = false;
           break;
         }
       }
+      if (flag) _houseModels.insert(0, data.data);
     }
   }
 }
